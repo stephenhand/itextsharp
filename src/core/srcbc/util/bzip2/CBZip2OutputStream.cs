@@ -377,9 +377,22 @@ namespace Org.BouncyCastle.Apache.Bzip2
 
         bool closed = false;
 
-        ~CBZip2OutputStream() {
-            Close();
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+
+            if (closed)
+            {
+                return;
+            }
+
+            Finish();
+
+            closed = true;
+            base.Dispose();
+            bsStream.Dispose();
         }
+#else
 
         public override void Close() {
             if (closed) {
@@ -392,7 +405,7 @@ namespace Org.BouncyCastle.Apache.Bzip2
             base.Close();
             bsStream.Close();
         }
-
+#endif
         public void Finish() {
             if (finished) {
                 return;

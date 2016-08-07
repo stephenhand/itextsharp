@@ -108,13 +108,19 @@ namespace Org.BouncyCastle.Crypto.IO
 			get { return stream.Position; }
 			set { stream.Position = value; }
 		}
-
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+            stream.Dispose();
+        }
+#else
 		public override void Close()
 		{
 			stream.Close();
 		}
+#endif
 
-		public override void Flush()
+        public override void Flush()
 		{
 			stream.Flush();
 		}

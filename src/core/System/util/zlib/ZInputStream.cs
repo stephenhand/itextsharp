@@ -91,7 +91,16 @@ namespace System.util.zlib {
 		public sealed override bool CanRead { get { return !closed; } }
 		public sealed override bool CanSeek { get { return false; } }
 		public sealed override bool CanWrite { get { return false; } }
-
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+            if (!closed)
+            {
+                closed = true;
+                input.Dispose();
+            }
+        }
+#else
 		public override void Close()
 		{
 			if (!closed)
@@ -100,7 +109,7 @@ namespace System.util.zlib {
 				input.Close();
 			}
 		}
-
+#endif
 		public sealed override void Flush() {}
 
 		public virtual int FlushMode

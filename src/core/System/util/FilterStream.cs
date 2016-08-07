@@ -75,10 +75,18 @@ namespace System.util
             get { return s.Position; }
             set { s.Position = value; }
         }
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+
+            s.Dispose();
+        }
+#else
         public override void Close()
         {
             s.Close();
         }
+#endif
         public override void Flush()
         {
             s.Flush();

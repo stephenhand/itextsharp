@@ -52,7 +52,11 @@ namespace iTextSharp.text.exceptions {
      * Gets thrown when the document isn't a valid PDF document.
      * @since 2.1.5
      */
-	[Serializable]
+	
+#if !NET_STANDARD
+[Serializable]
+#endif
+
     public class InvalidPdfException : IOException {
 
         private readonly Exception cause;
@@ -74,6 +78,9 @@ namespace iTextSharp.text.exceptions {
             this.cause = cause;
         }
 
+		
+#if !NET_STANDARD
 		protected InvalidPdfException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
     }
 }

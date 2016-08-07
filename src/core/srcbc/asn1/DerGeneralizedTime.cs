@@ -159,7 +159,7 @@ namespace Org.BouncyCastle.Asn1
 			char sign = '+';
             DateTime time = ToDateTime();
 
-#if SILVERLIGHT
+#if SILVERLIGHT || NET_STANDARD
 			long offset = time.Ticks - time.ToUniversalTime().Ticks;
 			if (offset < 0)
 			{

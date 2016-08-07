@@ -47,7 +47,11 @@ namespace iTextSharp.text.pdf {
     *
     * @author  psoares
     */
-	[Serializable]
+	
+#if !NET_STANDARD
+[Serializable]
+#endif
+
     public class PdfXConformanceException : PdfIsoConformanceException {
         
         /** Creates a new instance of PdfXConformanceException. */
@@ -61,6 +65,9 @@ namespace iTextSharp.text.pdf {
         public PdfXConformanceException(String s) : base(s) {
         }   
  
+		
+#if !NET_STANDARD
 		protected PdfXConformanceException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
     }
 }

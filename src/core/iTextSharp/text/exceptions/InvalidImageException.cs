@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.Serialization;
 /*
  * $Id: InvalidImageException.java 5830 2013-05-31 09:29:15Z blowagie $
  *
@@ -52,7 +51,11 @@ namespace iTextSharp.text.exceptions
      * Should only be thrown/not caught when ignoring invalid images.
      * @since 5.4.2
      */
-	[Serializable]
+	
+#if !NET_STANDARD
+[Serializable]
+#endif
+
     public class InvalidImageException : Exception
     {
         public InvalidImageException() { }
@@ -62,7 +65,9 @@ namespace iTextSharp.text.exceptions
         public InvalidImageException(string message, Exception innerException)
             : base(message, innerException) { }
 
-        protected InvalidImageException(SerializationInfo info, StreamingContext context)
-            : base(info, context) { }
+        
+#if !NET_STANDARD
+		protected InvalidImageException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
     }
 }

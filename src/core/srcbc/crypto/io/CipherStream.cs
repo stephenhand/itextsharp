@@ -200,9 +200,20 @@ namespace Org.BouncyCastle.Crypto.IO
             get { throw new NotSupportedException(); }
             set { throw new NotSupportedException(); }
         }
-
-		public override void Close()
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
         {
+            if (outCipher != null)
+            {
+                byte[] data = outCipher.DoFinal();
+                stream.Write(data, 0, data.Length);
+                stream.Flush();
+            }
+            stream.Dispose();
+        }
+#else
+		public override void Close()
+		{
 			if (outCipher != null)
 			{
 				byte[] data = outCipher.DoFinal();
@@ -210,7 +221,8 @@ namespace Org.BouncyCastle.Crypto.IO
 				stream.Flush();
 			}
 			stream.Close();
-        }
+		}
+#endif
 
 		public override void Flush()
         {

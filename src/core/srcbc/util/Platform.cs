@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-#if SILVERLIGHT
+#if SILVERLIGHT || NET_STANDARD
 using System.Collections.Generic;
 #else
 using System.Collections;
@@ -87,7 +87,7 @@ namespace Org.BouncyCastle.Utilities
 		}
 #endif
 
-#if SILVERLIGHT
+#if SILVERLIGHT || NET_STANDARD
         internal static System.Collections.IList CreateArrayList()
         {
             return new List<object>();
@@ -169,12 +169,12 @@ namespace Org.BouncyCastle.Utilities
 
         internal static string ToLowerInvariant(string s)
         {
-            return s.ToLower(CultureInfo.InvariantCulture);
+            return s.ToLowerInvariant();
         }
 
         internal static string ToUpperInvariant(string s)
         {
-            return s.ToUpper(CultureInfo.InvariantCulture);
+            return s.ToUpperInvariant();
         }
 
         internal static readonly string NewLine = GetNewLine();

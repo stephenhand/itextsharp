@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using System.Xml;
+using System.Xml.ReaderWriter;
 using System.Collections;
+using System.Collections.Generic;
 
 /*
  * $Id$
@@ -70,7 +72,7 @@ namespace iTextSharp.text.xml
                             string namespaceURI = reader.NamespaceURI;
                             string name = reader.Name;
                             bool isEmpty = reader.IsEmptyElement;
-                            Hashtable attributes = new Hashtable();
+                            Dictionary<string, string> attributes = new Dictionary<string, string>();
                             if (reader.HasAttributes) {
                                 for (int i = 0; i < reader.AttributeCount; i++) {
                                     reader.MoveToAttribute(i);
@@ -123,7 +125,7 @@ namespace iTextSharp.text.xml
         /// <param name="lname"></param>
         /// <param name="name">the name of the tag that is encountered</param>
         /// <param name="attrs">the list of attributes</param>
-        public abstract void StartElement(String uri, String lname, String name, Hashtable attrs);
+        public abstract void StartElement(String uri, String lname, String name, Dictionary<string, string> attrs);
 
         /// <summary>
         /// This method gets called when an end tag is encountered.

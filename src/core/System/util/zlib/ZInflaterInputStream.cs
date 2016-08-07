@@ -157,14 +157,22 @@ namespace System.util.zlib {
         public override void WriteByte(byte b) {
         }
 
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+
+            inp.Dispose();
+        }
+#else
         public override void Close() {
             inp.Close();
         }
-    
+#endif
         public override int ReadByte() {
             if(Read(buf1, 0, 1)<=0)
                 return -1;
             return(buf1[0]&0xFF);
         }
     }
+
 }

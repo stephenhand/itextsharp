@@ -54,7 +54,11 @@ namespace iTextSharp.text.exceptions {
      * supported in iText yet).
      * @since 2.1.5
      */
-	[Serializable]
+	
+#if !NET_STANDARD
+[Serializable]
+#endif
+
     public class UnsupportedPdfException : InvalidPdfException {
 
         /**
@@ -64,6 +68,9 @@ namespace iTextSharp.text.exceptions {
         public UnsupportedPdfException(String message) : base(message) {
         }
 
+		
+#if !NET_STANDARD
 		protected UnsupportedPdfException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
 	}
 }

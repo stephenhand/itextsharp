@@ -34,7 +34,7 @@ namespace Org.BouncyCastle.Crypto.Prng
 				int		numBytes,
 				bool	fast)
 			{
-#if SILVERLIGHT
+#if SILVERLIGHT || NET_STANDARD
                 return DoGenerateSeed(numBytes, fast);
 #else
                 ThreadPriority originalPriority = Thread.CurrentThread.Priority;

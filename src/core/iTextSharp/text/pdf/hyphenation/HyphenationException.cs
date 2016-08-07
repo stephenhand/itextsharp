@@ -19,12 +19,19 @@ namespace iTextSharp.text.pdf.hyphenation {
     /**
     * @author Carlos Villegas <cav@uniscope.co.jp>
     */
-	[Serializable]
+	
+#if !NET_STANDARD
+[Serializable]
+#endif
+
     public class HyphenationException : Exception {
 
         public HyphenationException(String msg) : base(msg) {
         }
 
+		
+#if !NET_STANDARD
 		protected HyphenationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
     }
 }

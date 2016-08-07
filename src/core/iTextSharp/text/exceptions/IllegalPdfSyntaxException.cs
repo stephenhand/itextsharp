@@ -50,7 +50,11 @@ namespace iTextSharp.text.exceptions {
      * Typed exception used when creating PDF syntax that isn't valid.
      * @since 2.1.6
      */
-	[Serializable]
+	
+#if !NET_STANDARD
+[Serializable]
+#endif
+
     public class IllegalPdfSyntaxException : ArgumentException {
 
         /**
@@ -60,6 +64,9 @@ namespace iTextSharp.text.exceptions {
         public IllegalPdfSyntaxException(String message) : base(message) {
         }
 
+		
+#if !NET_STANDARD
 		protected IllegalPdfSyntaxException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
     }
 }

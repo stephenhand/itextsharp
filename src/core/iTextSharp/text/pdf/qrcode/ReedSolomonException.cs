@@ -23,13 +23,20 @@ namespace iTextSharp.text.pdf.qrcode {
      *
      * @author Sean Owen
      */
-	[Serializable]
+	
+#if !NET_STANDARD
+[Serializable]
+#endif
+
     public sealed class ReedSolomonException : Exception {
 
         public ReedSolomonException(String message)
             : base(message) {
         }
 
+		
+#if !NET_STANDARD
 		protected ReedSolomonException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
     }
 }

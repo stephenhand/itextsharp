@@ -176,7 +176,22 @@ namespace System.util.zlib {
             z.free();
             z=null;
         }
-        
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+            try
+            {
+                try { Finish(); }
+                catch (IOException) { }
+            }
+            finally
+            {
+                End();
+                outp.Dispose();
+                outp = null;
+            }
+        }
+#else
         public override void Close() {
             try{
                 try{Finish();}
@@ -188,5 +203,6 @@ namespace System.util.zlib {
                 outp=null;
             }
         }
+#endif
     }
 }

@@ -27,7 +27,7 @@ namespace Org.BouncyCastle.Pkix
 	 *
 	 * @see CertPathValidator
 	 **/
-#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT)
+#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || NET_STANDARD)
     [Serializable]
 #endif
     public class PkixCertPathValidatorException

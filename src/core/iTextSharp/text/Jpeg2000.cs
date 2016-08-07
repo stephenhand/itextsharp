@@ -293,7 +293,7 @@ namespace iTextSharp.text
             {
                 if (inp != null) {
                     try {
-                        inp.Close();
+                        inp.Dispose();
                     }
                     catch { }
                     inp = null;

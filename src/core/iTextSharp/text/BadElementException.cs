@@ -53,13 +53,20 @@ namespace iTextSharp.text
     /// </summary>
     /// <seealso cref="T:iTextSharp.text.Cell"/>
     /// <seealso cref="T:iTextSharp.text.Table"/>
-	[Serializable]
+	
+#if !NET_STANDARD
+[Serializable]
+#endif
+
     public class BadElementException : DocumentException 
     {
         public BadElementException() : base() {}
 
         public BadElementException(string message) : base(message) {}
 
+		
+#if !NET_STANDARD
 		protected BadElementException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
     }
 }

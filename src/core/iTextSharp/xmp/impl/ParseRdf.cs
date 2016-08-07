@@ -1,7 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Xml;
 using iTextSharp.xmp.options;
+using iTextSharp.xmp.xml;
 
 //Copyright (c) 2006, Adobe Systems Incorporated
 //All rights reserved.
@@ -97,7 +99,7 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlRoot"> the XML root node </param>
         /// <returns> Returns an XMP metadata object (not normalized) </returns>
         /// <exception cref="XmpException"> Occurs if the parsing fails for any reason. </exception>
-        internal static XmpMetaImpl Parse(XmlNode xmlRoot) {
+        internal static XmpMetaImpl Parse(IXMLNode xmlRoot) {
             XmpMetaImpl xmp = new XmpMetaImpl();
             RdfRdf(xmp, xmlRoot);
             return xmp;
@@ -112,7 +114,7 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmp"> the xmp metadata object that is generated </param>
         /// <param name="rdfRdfNode"> the top-level xml node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        internal static void RdfRdf(XmpMetaImpl xmp, XmlNode rdfRdfNode) {
+        internal static void RdfRdf(XmpMetaImpl xmp, IXMLNode rdfRdfNode) {
             if (rdfRdfNode.Attributes != null && rdfRdfNode.Attributes.Count > 0) {
                 RdfNodeElementList(xmp, xmp.Root, rdfRdfNode);
             }
@@ -131,9 +133,9 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmpParent"> the parent xmp node </param>
         /// <param name="rdfRdfNode"> the top-level xml node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfNodeElementList(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode rdfRdfNode) {
+        private static void RdfNodeElementList(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode rdfRdfNode) {
             for (int i = 0; i < rdfRdfNode.ChildNodes.Count; i++) {
-                XmlNode child = rdfRdfNode.ChildNodes[i];
+                IXMLNode child = rdfRdfNode.ChildNodes[i];
                 // filter whitespaces (and all text nodes)
                 if (!IsWhitespaceNode(child)) {
                     RdfNodeElement(xmp, xmpParent, child, true);
@@ -160,7 +162,7 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlNode"> the currently processed XML node </param>
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfNodeElement(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlNode, bool isTopLevel) {
+        private static void RdfNodeElement(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlNode, bool isTopLevel) {
             int nodeTerm = GetRdfTermKind(xmlNode);
             if (nodeTerm != RDFTERM_DESCRIPTION && nodeTerm != RDFTERM_OTHER) {
                 throw new XmpException("Node element must be rdf:Description or typed node", XmpError.BADRDF);
@@ -193,14 +195,14 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlNode"> the currently processed XML node </param>
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfNodeElementAttrs(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlNode, bool isTopLevel) {
+        private static void RdfNodeElementAttrs(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlNode, bool isTopLevel) {
             // Used to detect attributes that are mutually exclusive.
             int exclusiveAttrs = 0;
             if (xmlNode == null || xmlNode.Attributes == null)
                 return;
 
             for (int i = 0; i < xmlNode.Attributes.Count; i++) {
-                XmlNode attribute = xmlNode.Attributes[i];
+                IXMLNode attribute = xmlNode.Attributes[i];
 
                 // quick hack, ns declarations do not appear in C++
                 // ignore "ID" without namespace
@@ -258,10 +260,10 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlParent"> the currently processed XML node </param>
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfPropertyElementList(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlParent,
+        private static void RdfPropertyElementList(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlParent,
                                                    bool isTopLevel) {
             for (int i = 0; i < xmlParent.ChildNodes.Count; i++) {
-                XmlNode currChild = xmlParent.ChildNodes[i];
+                IXMLNode currChild = xmlParent.ChildNodes[i];
                 if (IsWhitespaceNode(currChild)) {
                     continue;
                 }
@@ -331,22 +333,22 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlNode"> the currently processed XML node </param>
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfPropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlNode, bool isTopLevel) {
+        private static void RdfPropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlNode, bool isTopLevel) {
             int nodeTerm = GetRdfTermKind(xmlNode);
             if (!IsPropertyElementName(nodeTerm)) {
                 throw new XmpException("Invalid property element name", XmpError.BADRDF);
             }
 
             // remove the namespace-definitions from the list
-            XmlAttributeCollection attributes = xmlNode.Attributes;
+            List<IXMLAttribute> attributes = xmlNode.Attributes;
             if (attributes == null)
                 return;
             IList nsAttrs = null;
             for (int i = 0; i < attributes.Count; i++) {
-                XmlNode attribute = attributes[i];
+                IXMLNode attribute = attributes[i];
                 if ("xmlns".Equals(attribute.Prefix) || (attribute.Prefix == null && "xmlns".Equals(attribute.Name))) {
                     if (nsAttrs == null) {
-                        nsAttrs = new ArrayList();
+                        nsAttrs = new List<IXMLAttribute>();
                     }
                     nsAttrs.Add(attribute.Name);
                 }
@@ -369,7 +371,7 @@ namespace iTextSharp.xmp.impl {
                 // The called routines must verify their specific syntax!
 
                 for (int i = 0; i < attributes.Count; i++) {
-                    XmlNode attribute = attributes[i];
+                    IXMLNode attribute = attributes[i];
                     string attrLocal = attribute.LocalName;
                     string attrNs = attribute.NamespaceURI;
                     string attrValue = attribute.Value;
@@ -402,7 +404,7 @@ namespace iTextSharp.xmp.impl {
 
                 if (xmlNode.HasChildNodes) {
                     for (int i = 0; i < xmlNode.ChildNodes.Count; i++) {
-                        XmlNode currChild = xmlNode.ChildNodes[i];
+                        IXMLNode currChild = xmlNode.ChildNodes[i];
                         if (currChild.NodeType != XmlNodeType.Text) {
                             RdfResourcePropertyElement(xmp, xmpParent, xmlNode, isTopLevel);
                             return;
@@ -433,7 +435,7 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlNode"> the currently processed XML node </param>
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfResourcePropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlNode,
+        private static void RdfResourcePropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlNode,
                                                        bool isTopLevel) {
             if (isTopLevel && "iX:changes".Equals(xmlNode.Name)) {
                 // Strip old "punchcard" chaff which has on the prefix "iX:".
@@ -445,7 +447,7 @@ namespace iTextSharp.xmp.impl {
             // walk through the attributes
             if (xmlNode.Attributes != null) {
                 for (int i = 0; i < xmlNode.Attributes.Count; i++) {
-                    XmlNode attribute = xmlNode.Attributes[i];
+                    IXMLNode attribute = xmlNode.Attributes[i];
                     if ("xmlns".Equals(attribute.Prefix) || (attribute.Prefix == null && "xmlns".Equals(attribute.Name))) {
                         continue;
                     }
@@ -466,7 +468,7 @@ namespace iTextSharp.xmp.impl {
 
             bool found = false;
             for (int i = 0; i < xmlNode.ChildNodes.Count; i++) {
-                XmlNode currChild = xmlNode.ChildNodes[i];
+                IXMLNode currChild = xmlNode.ChildNodes[i];
                 if (!IsWhitespaceNode(currChild)) {
                     if (currChild.NodeType == XmlNodeType.Element && !found) {
                         bool isRdf = NS_RDF.Equals(currChild.NamespaceURI);
@@ -539,12 +541,12 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlNode"> the currently processed XML node </param>
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfLiteralPropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlNode,
+        private static void RdfLiteralPropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlNode,
                                                       bool isTopLevel) {
             XmpNode newChild = AddChildNode(xmp, xmpParent, xmlNode, null, isTopLevel);
             if (xmlNode.Attributes != null) {
                 for (int i = 0; i < xmlNode.Attributes.Count; i++) {
-                    XmlNode attribute = xmlNode.Attributes[i];
+                    IXMLNode attribute = xmlNode.Attributes[i];
                     if ("xmlns".Equals(attribute.Prefix) || (attribute.Prefix == null && "xmlns".Equals(attribute.Name))) {
                         continue;
                     }
@@ -561,7 +563,7 @@ namespace iTextSharp.xmp.impl {
             }
             string textValue = "";
             for (int i = 0; i < xmlNode.ChildNodes.Count; i++) {
-                XmlNode child = xmlNode.ChildNodes[i];
+                IXMLNode child = xmlNode.ChildNodes[i];
                 if (child.NodeType == XmlNodeType.Text) {
                     textValue += child.Value;
                 }
@@ -601,7 +603,7 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlNode"> the currently processed XML node </param>
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfParseTypeResourcePropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlNode,
+        private static void RdfParseTypeResourcePropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlNode,
                                                                 bool isTopLevel) {
             XmpNode newStruct = AddChildNode(xmp, xmpParent, xmlNode, "", isTopLevel);
 
@@ -609,7 +611,7 @@ namespace iTextSharp.xmp.impl {
 
             if (xmlNode.Attributes != null) {
                 for (int i = 0; i < xmlNode.Attributes.Count; i++) {
-                    XmlNode attribute = xmlNode.Attributes[i];
+                    IXMLNode attribute = xmlNode.Attributes[i];
                     if ("xmlns".Equals(attribute.Prefix) || (attribute.Prefix == null && "xmlns".Equals(attribute.Name))) {
                         continue;
                     }
@@ -704,14 +706,14 @@ namespace iTextSharp.xmp.impl {
         /// <param name="xmlNode"> the currently processed XML node </param>
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static void RdfEmptyPropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlNode,
+        private static void RdfEmptyPropertyElement(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlNode,
                                                     bool isTopLevel) {
             bool hasPropertyAttrs = false;
             bool hasResourceAttr = false;
             bool hasNodeIdAttr = false;
             bool hasValueAttr = false;
 
-            XmlNode valueNode = null; // ! Can come from rdf:value or rdf:resource.
+            IXMLNode valueNode = null; // ! Can come from rdf:value or rdf:resource.
 
             if (xmlNode.HasChildNodes) {
                 throw new XmpException("Nested content not allowed with rdf:resource or property attributes",
@@ -721,7 +723,7 @@ namespace iTextSharp.xmp.impl {
             // First figure out what XMP this maps to and remember the XML node for a simple value.
             if (xmlNode.Attributes != null) {
                 for (int i = 0; i < xmlNode.Attributes.Count; i++) {
-                    XmlNode attribute = xmlNode.Attributes[i];
+                    IXMLNode attribute = xmlNode.Attributes[i];
                     if ("xmlns".Equals(attribute.Prefix) || (attribute.Prefix == null && "xmlns".Equals(attribute.Name))) {
                         continue;
                     }
@@ -805,7 +807,7 @@ namespace iTextSharp.xmp.impl {
 
             if (xmlNode.Attributes != null) {
                 for (int i = 0; i < xmlNode.Attributes.Count; i++) {
-                    XmlNode attribute = xmlNode.Attributes[i];
+                    IXMLNode attribute = xmlNode.Attributes[i];
                     if (attribute == valueNode || "xmlns".Equals(attribute.Prefix) ||
                         (attribute.Prefix == null && "xmlns".Equals(attribute.Name))) {
                         continue; // Skip the rdf:value or rdf:resource attribute holding the value.
@@ -852,7 +854,7 @@ namespace iTextSharp.xmp.impl {
         /// <param name="isTopLevel"> Flag if the node is a top-level node </param>
         /// <returns> Returns the newly created child node. </returns>
         /// <exception cref="XmpException"> thown on parsing errors </exception>
-        private static XmpNode AddChildNode(XmpMetaImpl xmp, XmpNode xmpParent, XmlNode xmlNode, string value,
+        private static XmpNode AddChildNode(XmpMetaImpl xmp, XmpNode xmpParent, IXMLNode xmlNode, string value,
                                             bool isTopLevel) {
             IXmpSchemaRegistry registry = XmpMetaFactory.SchemaRegistry;
             string @namespace = xmlNode.NamespaceURI;
@@ -1016,7 +1018,7 @@ namespace iTextSharp.xmp.impl {
         /// <param name="node"> an XML-node </param>
         /// <returns> Returns whether the node is a whitespace node, 
         /// 		i.e. a text node that contains only whitespaces. </returns>
-        private static bool IsWhitespaceNode(XmlNode node) {
+        private static bool IsWhitespaceNode(IXMLNode node) {
             if (node.NodeType != XmlNodeType.Text) {
                 return false;
             }
@@ -1075,12 +1077,12 @@ namespace iTextSharp.xmp.impl {
         /// </summary>
         /// <param name="node"> an XML node </param>
         /// <returns> Returns the term ID. </returns>
-        private static int GetRdfTermKind(XmlNode node) {
+        private static int GetRdfTermKind(IXMLNode node) {
             string localName = node.LocalName;
             string @namespace = node.NamespaceURI;
 
-            if (@namespace == null && ("about".Equals(localName) || "ID".Equals(localName)) && (node is XmlAttribute) &&
-                NS_RDF.Equals(((XmlAttribute) node).OwnerElement.NamespaceURI)) {
+            if (@namespace == null && ("about".Equals(localName) || "ID".Equals(localName)) && (node is IXMLAttribute) &&
+                NS_RDF.Equals(((IXMLAttribute) node).OwnerElement.NamespaceURI)) {
                 @namespace = NS_RDF;
             }
 

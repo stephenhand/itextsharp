@@ -3,7 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Text;
 
-#if SILVERLIGHT
+#if SILVERLIGHT || NET_STANDARD
 using System.Collections.Generic;
 #endif
 
@@ -203,7 +203,7 @@ namespace Org.BouncyCastle.Asn1.X509
 
 		private static readonly bool[] defaultReverse = { false };
 
-#if SILVERLIGHT
+#if SILVERLIGHT || NET_STANDARD
 		/**
 		* default look up table translating OID values into their common symbols following
 		* the convention in RFC 2253 with a few extras
@@ -416,7 +416,7 @@ namespace Org.BouncyCastle.Asn1.X509
             }
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
         [Obsolete]
         public X509Name(
             ArrayList ordering,
@@ -441,7 +441,7 @@ namespace Org.BouncyCastle.Asn1.X509
         {
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
         [Obsolete]
         public X509Name(
             ArrayList				ordering,
@@ -484,7 +484,7 @@ namespace Org.BouncyCastle.Asn1.X509
 			}
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
         [Obsolete]
         public X509Name(
             ArrayList oids,
@@ -504,7 +504,7 @@ namespace Org.BouncyCastle.Asn1.X509
         {
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
         [Obsolete]
         public X509Name(
             ArrayList				oids,
@@ -598,7 +598,7 @@ namespace Org.BouncyCastle.Asn1.X509
         {
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
         [Obsolete]
         public X509Name(
             bool reverse,
@@ -747,7 +747,7 @@ namespace Org.BouncyCastle.Asn1.X509
 			}
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
 		/**
 		* return an ArrayList of the oids in the name, in the order they were found.
 		*/
@@ -766,7 +766,7 @@ namespace Org.BouncyCastle.Asn1.X509
             return Platform.CreateArrayList(ordering);
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
 		/**
 		* return an ArrayList of the values found in the name, in the order they
 		* were found.
@@ -787,7 +787,7 @@ namespace Org.BouncyCastle.Asn1.X509
             return Platform.CreateArrayList(values);
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
 		/**
 		 * return an ArrayList of the values found in the name, in the order they
 		 * were found, with the DN label corresponding to passed in oid.
@@ -1106,7 +1106,7 @@ namespace Org.BouncyCastle.Asn1.X509
             }
         }
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NET_STANDARD
         [Obsolete]
         public string ToString(
             bool        reverse,
@@ -1132,7 +1132,7 @@ namespace Org.BouncyCastle.Asn1.X509
             bool		reverse,
             IDictionary oidSymbols)
         {
-#if SILVERLIGHT
+#if SILVERLIGHT || NET_STANDARD
             List<object> components = new List<object>();
 #else
 			ArrayList components = new ArrayList();

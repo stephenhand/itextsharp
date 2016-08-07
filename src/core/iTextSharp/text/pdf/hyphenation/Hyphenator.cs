@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Collections;
+using System.Collections.Generic;
 using System.util;
 using iTextSharp.text.io;
 using iTextSharp.text.pdf;
@@ -31,7 +31,7 @@ namespace iTextSharp.text.pdf.hyphenation {
     public class Hyphenator {
         
         /** TODO: Don't use statics */
-        private static Hashtable hyphenTrees = Hashtable.Synchronized(new Hashtable());
+        private static Dictionary<string, HyphenationTree> hyphenTrees = new Dictionary<string, HyphenationTree>();
 
         private HyphenationTree hyphenTree = null;
         private int remainCharCount = 2;
@@ -63,12 +63,17 @@ namespace iTextSharp.text.pdf.hyphenation {
             if (country != null && !country.Equals("none")) {
                 key += "_" + country;
             }
-                // first try to find it in the cache
-            if (hyphenTrees.ContainsKey(key)) {
-                return (HyphenationTree)hyphenTrees[key];
-            }
-            if (hyphenTrees.ContainsKey(lang)) {
-                return (HyphenationTree)hyphenTrees[lang];
+            // first try to find it in the cache
+
+            lock (hyphenTrees)
+            {
+                if (hyphenTrees.ContainsKey(key)) {
+                    return (HyphenationTree)hyphenTrees[key];
+                }
+                if (hyphenTrees.ContainsKey(lang)) {
+                    return (HyphenationTree)hyphenTrees[lang];
+                }
+
             }
 
             HyphenationTree hTree = GetResourceHyphenationTree(key);
@@ -76,7 +81,11 @@ namespace iTextSharp.text.pdf.hyphenation {
             //    hTree = GetFileHyphenationTree(key);
             // put it into the pattern cache
             if (hTree != null) {
-                hyphenTrees[key] = hTree;
+                lock (hyphenTrees)
+                {
+                    hyphenTrees[key] = hTree;
+
+                }
             }
             return hTree;
         }
