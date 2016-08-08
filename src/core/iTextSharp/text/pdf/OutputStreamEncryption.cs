@@ -143,12 +143,18 @@ namespace iTextSharp.text.pdf {
                 }
             }
         }
-    
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+            Finish();
+            outc.Dispose();
+        }
+#else
         public override void Close() {
             Finish();
             outc.Close();
         }
-    
+#endif
         public override void WriteByte(byte value) {
             buf[0] = value;
             Write(buf, 0, 1);

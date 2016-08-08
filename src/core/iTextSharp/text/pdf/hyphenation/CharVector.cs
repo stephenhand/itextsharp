@@ -1,5 +1,7 @@
 using System;
-
+#if NET_STANDARD
+using System.shims;
+#endif
 /*
  * $Id$
  * Copyright (C) 2001 The Apache Software Foundation. All rights reserved.
@@ -8,8 +10,12 @@ using System;
  */
 
 namespace iTextSharp.text.pdf.hyphenation {
-	/**
-	 * This class implements a simple char vector with access to the
+
+#if NET_STANDARD
+    using ICloneable = IClonableShim;
+#endif
+    /**
+     * This class implements a simple char vector with access to the
 	 * underlying array.
 	 *
 	 * @author Carlos Villegas <cav@uniscope.co.jp>

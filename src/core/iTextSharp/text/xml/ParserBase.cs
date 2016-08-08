@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Xml;
-using System.Xml.ReaderWriter;
+using System.Xml;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -60,11 +60,11 @@ namespace iTextSharp.text.xml
         virtual public void Parse(XmlDocument xDoc) {
             string xml = xDoc.OuterXml;
             StringReader stringReader = new StringReader(xml);
-            XmlTextReader reader = new XmlTextReader(stringReader);
+            XmlReader reader = XmlReader.Create(stringReader);
             this.Parse(reader);
         }
 
-        virtual public void Parse(XmlTextReader reader) {
+        virtual public void Parse(XmlReader reader) {
             try {
                 while (reader.Read()) {
                     switch (reader.NodeType) {
@@ -103,7 +103,7 @@ namespace iTextSharp.text.xml
                 Console.Out.WriteLine(e.Message);
             } finally {
                 if (reader != null) {
-                    reader.Close();
+                    reader.Dispose();
                 }
             }
         }
@@ -113,8 +113,8 @@ namespace iTextSharp.text.xml
         /// </summary>
         /// <param name="url">the XML document to parse</param>
         virtual public void Parse(string url) {
-            XmlTextReader reader = null;
-            reader = new XmlTextReader(url);
+            XmlReader reader = null;
+            reader = XmlReader.Create(url);
             this.Parse(reader);
         }
 

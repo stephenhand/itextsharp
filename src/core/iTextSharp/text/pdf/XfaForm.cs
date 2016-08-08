@@ -121,7 +121,7 @@ namespace iTextSharp.text.pdf {
                 bout.Write(b, 0, b.Length);
             }
             bout.Seek(0, SeekOrigin.Begin);
-            XmlTextReader xtr = new XmlTextReader(bout);
+            XmlReader xtr = XmlReader.Create(bout);
             domDocument = new XmlDocument();
             domDocument.PreserveWhitespace = true;
             domDocument.Load(xtr);
@@ -256,12 +256,14 @@ namespace iTextSharp.text.pdf {
          */
         public static byte[] SerializeDoc(XmlNode n) {
             XmlDomWriter xw = new XmlDomWriter();
-            MemoryStream fout = new MemoryStream();
-            xw.SetOutput(fout, null);
-            xw.SetCanonical(false);
-            xw.Write(n);
-            fout.Close();
-            return fout.ToArray();
+            using (MemoryStream fout = new MemoryStream())
+            {
+                xw.SetOutput(fout, null);
+                xw.SetCanonical(false);
+                xw.Write(n);
+                return fout.ToArray();
+
+            }
         }
         
         /**
@@ -1097,7 +1099,7 @@ namespace iTextSharp.text.pdf {
         }
         
         virtual public void FillXfaForm(Stream stream, bool readOnly) {
-    	    FillXfaForm(new XmlTextReader(stream), readOnly);
+    	    FillXfaForm(XmlReader.Create(stream), readOnly);
         }
 
         virtual public void FillXfaForm(XmlReader reader) {

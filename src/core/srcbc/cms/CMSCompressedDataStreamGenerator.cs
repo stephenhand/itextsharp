@@ -124,8 +124,22 @@ namespace Org.BouncyCastle.Cms
 				_out.Write(bytes, off, len);
 			}
 
-			public override void Close()
-			{
+
+#if NET_STANDARD
+            protected override void Dispose(Boolean disposing)
+            {
+                _out.Dispose();
+
+                // TODO Parent context(s) should really be be closed explicitly
+
+                _eiGen.Close();
+                _cGen.Close();
+                _sGen.Close();
+                base.Dispose();
+            }
+#else
+            public override void Close()
+		    {
 				_out.Close();
 
 				// TODO Parent context(s) should really be be closed explicitly
@@ -134,7 +148,8 @@ namespace Org.BouncyCastle.Cms
 				_cGen.Close();
 				_sGen.Close();
 				base.Close();
-			}
-		}
-	}
+		    }
+#endif
+        }
+    }
 }

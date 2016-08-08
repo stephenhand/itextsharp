@@ -101,9 +101,20 @@ namespace Org.BouncyCastle.Asn1
 					len -= numToCopy;
 				}
 			}
+#if NET_STANDARD
+            protected override void Dispose(Boolean disposing)
+            {
+                if (_off != 0)
+                {
+                    DerOctetString.Encode(_derOut, _buf, 0, _off);
+                }
 
-			public override void Close()
-			{
+                _gen.WriteBerEnd();
+                base.Dispose();
+            }
+#else
+            public override void Close()
+		    {
 				if (_off != 0)
 				{
 					DerOctetString.Encode(_derOut, _buf, 0, _off);
@@ -111,7 +122,8 @@ namespace Org.BouncyCastle.Asn1
 
 				_gen.WriteBerEnd();
 				base.Close();
-			}
+		    }
+#endif
 		}
 	}
 }

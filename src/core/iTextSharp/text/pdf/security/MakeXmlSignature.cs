@@ -1,3 +1,5 @@
+#if !NET_STANDARD
+
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -490,3 +492,4 @@ namespace iTextSharp.text.pdf.security
         }
     }
 }
+#endif

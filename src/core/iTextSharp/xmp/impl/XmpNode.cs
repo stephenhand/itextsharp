@@ -1,4 +1,7 @@
 using System;
+#if NET_STANDARD
+using System.shims;
+#endif
 using System.Collections;
 using System.Diagnostics;
 using System.Text;
@@ -38,6 +41,9 @@ namespace iTextSharp.xmp.impl {
     using XmpConst = XmpConst;
     using XMPError = XmpError;
     using XmpException = XmpException;
+#if NET_STANDARD
+    using ICloneable = IClonableShim;
+#endif
 
 
     /// <summary>

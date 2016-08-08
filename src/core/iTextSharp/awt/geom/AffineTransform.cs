@@ -44,9 +44,15 @@
  */
 
 using System;
+#if NET_STANDARD
+using System.shims;
+#endif
 
 namespace iTextSharp.awt.geom
 {
+#if NET_STANDARD
+    using ICloneable = IClonableShim;
+#endif
     public class AffineTransform : ICloneable {
 
         public const int TYPE_IDENTITY = 0;

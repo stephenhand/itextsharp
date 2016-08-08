@@ -206,11 +206,18 @@ namespace iTextSharp.xmp.impl {
         /// Closing a previously closed stream has no effect.
         /// </summary>
         /// <exception cref="IOException">  If an I/O error occurs </exception>
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose();
+            _buf = null;
+        }
+#else
         public override void Close() {
             base.Close();
             _buf = null;
         }
-
+#endif
         /// <summary>
         /// Skips characters.  This method will block until some characters are
         /// available, an I/O error occurs, or the end of the stream is reached.

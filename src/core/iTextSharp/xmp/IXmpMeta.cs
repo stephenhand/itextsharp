@@ -1,4 +1,7 @@
 using System;
+#if NET_STANDARD
+using System.shims;
+#endif
 using iTextSharp.xmp.options;
 using iTextSharp.xmp.properties;
 
@@ -33,6 +36,10 @@ using iTextSharp.xmp.properties;
 //        http://www.adobe.com/devnet/xmp/library/eula-xmp-library-java.html
 
 namespace iTextSharp.xmp {
+
+#if NET_STANDARD
+    using ICloneable = IClonableShim;
+#endif
     /// <summary>
     /// This class represents the set of XMP metadata as a DOM representation. It has methods to read and
     /// modify all kinds of properties, create an iterator over all properties and Serialize the metadata

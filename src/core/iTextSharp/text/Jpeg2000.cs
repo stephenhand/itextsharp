@@ -3,55 +3,58 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+#if !NET_STANDARD
 using System.Runtime.Serialization;
+#endif
 using System.util;
 using iTextSharp.text.pdf;
 using iTextSharp.text.error_messages;
+using System.Threading;
 /*
- * $Id$
- * 
- *
- * This file is part of the iText project.
- * Copyright (c) 1998-2016 iText Group NV
- * Authors: Bruno Lowagie, Paulo Soares, et al.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License version 3
- * as published by the Free Software Foundation with the addition of the
- * following permission added to Section 15 as permitted in Section 7(a):
- * FOR ANY PART OF THE COVERED WORK IN WHICH THE COPYRIGHT IS OWNED BY
- * ITEXT GROUP. ITEXT GROUP DISCLAIMS THE WARRANTY OF NON INFRINGEMENT
- * OF THIRD PARTY RIGHTS
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Affero General Public License for more details.
- * You should have received a copy of the GNU Affero General Public License
- * along with this program; if not, see http://www.gnu.org/licenses or write to
- * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA, 02110-1301 USA, or download the license from the following URL:
- * http://itextpdf.com/terms-of-use/
- *
- * The interactive user interfaces in modified source and object code versions
- * of this program must display Appropriate Legal Notices, as required under
- * Section 5 of the GNU Affero General Public License.
- *
- * In accordance with Section 7(b) of the GNU Affero General Public License,
- * a covered work must retain the producer line in every PDF that is created
- * or manipulated using iText.
- *
- * You can be released from the requirements of the license by purchasing
- * a commercial license. Buying such a license is mandatory as soon as you
- * develop commercial activities involving the iText software without
- * disclosing the source code of your own applications.
- * These activities include: offering paid services to customers as an ASP,
- * serving PDFs on the fly in a web application, shipping iText with a closed
- * source product.
- *
- * For more information, please contact iText Software Corp. at this
- * address: sales@itextpdf.com
- */
+* $Id$
+* 
+*
+* This file is part of the iText project.
+* Copyright (c) 1998-2016 iText Group NV
+* Authors: Bruno Lowagie, Paulo Soares, et al.
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU Affero General Public License version 3
+* as published by the Free Software Foundation with the addition of the
+* following permission added to Section 15 as permitted in Section 7(a):
+* FOR ANY PART OF THE COVERED WORK IN WHICH THE COPYRIGHT IS OWNED BY
+* ITEXT GROUP. ITEXT GROUP DISCLAIMS THE WARRANTY OF NON INFRINGEMENT
+* OF THIRD PARTY RIGHTS
+*
+* This program is distributed in the hope that it will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+* or FITNESS FOR A PARTICULAR PURPOSE.
+* See the GNU Affero General Public License for more details.
+* You should have received a copy of the GNU Affero General Public License
+* along with this program; if not, see http://www.gnu.org/licenses or write to
+* the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+* Boston, MA, 02110-1301 USA, or download the license from the following URL:
+* http://itextpdf.com/terms-of-use/
+*
+* The interactive user interfaces in modified source and object code versions
+* of this program must display Appropriate Legal Notices, as required under
+* Section 5 of the GNU Affero General Public License.
+*
+* In accordance with Section 7(b) of the GNU Affero General Public License,
+* a covered work must retain the producer line in every PDF that is created
+* or manipulated using iText.
+*
+* You can be released from the requirements of the license by purchasing
+* a commercial license. Buying such a license is mandatory as soon as you
+* develop commercial activities involving the iText software without
+* disclosing the source code of your own applications.
+* These activities include: offering paid services to customers as an ASP,
+* serving PDFs on the fly in a web application, shipping iText with a closed
+* source product.
+*
+* For more information, please contact iText Software Corp. at this
+* address: sales@itextpdf.com
+*/
 
 namespace iTextSharp.text
 {
@@ -194,18 +197,50 @@ namespace iTextSharp.text
             inp = null;
             try
             {
+                WebRequest w=null;
                 if (rawData == null)
                 {
-                    WebRequest w = WebRequest.Create(url);
+                    w = WebRequest.Create(url);
                     w.Credentials = CredentialCache.DefaultCredentials;
-                    inp = w.GetResponse().GetResponseStream();
+                    ManualResetEvent done = new ManualResetEvent(false);
+                    AsyncCallback cb = delegate (IAsyncResult res)
+                    {
+                        using (WebResponse resp = w.EndGetResponse(res))
+                        {
+                            ProcessJpegStream(resp.GetResponseStream());
+                        }
+
+                        done.Set();
+                    };
+                    w.BeginGetResponse(cb, null);
+                    done.WaitOne();
                 }
                 else
                 {
-                    inp = new MemoryStream(rawData);
+                    ProcessJpegStream(new MemoryStream(rawData));
                 }
+                
+            }
+            finally
+            {
+                if (inp != null) {
+                    try {
+                        inp.Dispose();
+                    }
+                    catch { }
+                    inp = null;
+                }
+            }
+            plainWidth = this.Width;
+            plainHeight = this.Height;
+        }
+
+        private void ProcessJpegStream(Stream inp) {
+            using (inp)
+            {
                 boxLength = Cio_read(4);
-                if (boxLength == 0x0000000c) {
+                if (boxLength == 0x0000000c)
+                {
                     isJp2 = true;
                     boxType = Cio_read(4);
                     if (JP2_JP != boxType)
@@ -252,24 +287,30 @@ namespace iTextSharp.text
                     Utilities.Skip(inp, 3);
 
                     Jp2_read_boxhdr();
-                    if (boxType == JP2_BPCC) {
+                    if (boxType == JP2_BPCC)
+                    {
                         bpcBoxData = new byte[boxLength - 8];
                         inp.Read(bpcBoxData, 0, boxLength - 8);
-                    } else if (boxType == JP2_COLR) {
-                        do {
+                    }
+                    else if (boxType == JP2_COLR)
+                    {
+                        do
+                        {
                             if (colorSpecBoxes == null)
                                 colorSpecBoxes = new List<ColorSpecBox>();
                             colorSpecBoxes.Add(Jp2_read_colr());
-                            try {
+                            try
+                            {
                                 Jp2_read_boxhdr();
                             }
-                            catch (ZeroBoxSiteException e) {
+                            catch (ZeroBoxSiteException e)
+                            {
                                 //Probably we have reached the contiguous codestream box which is the last in jpeg2000 and has no length.
                             }
                         } while (JP2_COLR == boxType);
                     }
                 }
-                else if ((uint) boxLength == 0xff4fff51)
+                else if ((uint)boxLength == 0xff4fff51)
                 {
                     Utilities.Skip(inp, 4);
                     int x1 = Cio_read(4);
@@ -288,19 +329,8 @@ namespace iTextSharp.text
                 {
                     throw new IOException(MessageLocalization.GetComposedMessage("not.a.valid.jpeg2000.file"));
                 }
+
             }
-            finally
-            {
-                if (inp != null) {
-                    try {
-                        inp.Dispose();
-                    }
-                    catch { }
-                    inp = null;
-                }
-            }
-            plainWidth = this.Width;
-            plainHeight = this.Height;
         }
 
         private ColorSpecBox Jp2_read_colr()
@@ -394,7 +424,9 @@ namespace iTextSharp.text
 
             public ZeroBoxSiteException(string message, Exception innerException) : base(message, innerException) { }
 
+#if !NET_STANDARD
             protected ZeroBoxSiteException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+#endif
         }
 
 

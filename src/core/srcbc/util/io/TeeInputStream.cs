@@ -17,13 +17,20 @@ namespace Org.BouncyCastle.Utilities.IO
 			this.input = input;
 			this.tee = tee;
 		}
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
 
+            input.Dispose();
+            tee.Dispose();
+        }
+#else
 		public override void Close()
 		{
 			input.Close();
 			tee.Close();
 		}
-
+#endif
 		public override int Read(byte[] buf, int off, int len)
 		{
 			int i = input.Read(buf, off, len);

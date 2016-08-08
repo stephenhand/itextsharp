@@ -83,13 +83,7 @@ namespace iTextSharp.text.xml.xmp {
         public override int GetMaxCharCount(int byteCount) {
             return encoding.GetMaxCharCount(byteCount);
         }
-    
-        public override string BodyName {
-            get {
-                return encoding.BodyName;
-            }
-        }
-    
+
         public override int CodePage {
             get {
                 return encoding.CodePage;
@@ -101,7 +95,13 @@ namespace iTextSharp.text.xml.xmp {
                 return encoding.EncodingName;
             }
         }
-    
+#if !NET_STANDARD
+        public override string BodyName {
+            get {
+                return encoding.BodyName;
+            }
+        }
+        
         public override string HeaderName {
             get {
                 return encoding.HeaderName;
@@ -132,15 +132,16 @@ namespace iTextSharp.text.xml.xmp {
             }
         }
     
-        public override string WebName {
-            get {
-                return encoding.WebName;
-            }
-        }
-    
         public override int WindowsCodePage {
             get {
                 return encoding.WindowsCodePage;
+            }
+        }
+#endif
+    
+        public override string WebName {
+            get {
+                return encoding.WebName;
             }
         }
     

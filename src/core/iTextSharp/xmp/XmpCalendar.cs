@@ -46,37 +46,52 @@
 using System;
 
 namespace iTextSharp.xmp {
-    public class XmpCalendar {
-        private DateTime _dateTime;
-        private TimeZone _timeZone;
+#if NET_STANDARD
+    public class XmpCalendar : XmpCalendar<TimeZoneInfo> {
+        public XmpCalendar(DateTime dt, TimeZoneInfo tz) : base(dt, tz) {}
 
-        public XmpCalendar(DateTime dt, TimeZone tz) {
+        public XmpCalendar(DateTime dt) : this(dt, TimeZoneInfo.Local) {}
+
+        public XmpCalendar(TimeZoneInfo tz) : this(DateTime.Now, tz) {}
+
+        public XmpCalendar() : this(DateTime.Now, TimeZoneInfo.Local) {}
+    }
+#else
+    public class XmpCalendar : XmpCalendar<TimeZone> {
+
+        public XmpCalendar(DateTime dt, TimeZoneInfo tz) : base(dt, tz) {}
+
+        public XmpCalendar(DateTime dt) : this(dt, TimeZone.CurrentTimeZone) {}
+
+        public XmpCalendar(TimeZoneInfo tz) : this(DateTime.Now, tz) {}
+
+        public XmpCalendar() : this(DateTime.Now, TimeZone.CurrentTimeZone) {}
+    }
+#endif
+    public abstract class XmpCalendar<TZImpl> {
+        private DateTime _dateTime;
+        private TZImpl _timeZone;
+
+        public XmpCalendar(DateTime dt, TZImpl tz)
+        {
             DateTime = dt;
             TimeZone = tz;
         }
 
-        public XmpCalendar(DateTime dt) : this(dt, TimeZone.CurrentTimeZone) {
-        }
-
-        public XmpCalendar(TimeZone tz)
-            : this(DateTime.Now, tz) {
-        }
-
-
-        public XmpCalendar() : this(DateTime.Now, TimeZone.CurrentTimeZone) {
-        }
-
-        virtual public DateTime DateTime {
+        virtual public DateTime DateTime
+        {
             get { return _dateTime; }
             set { _dateTime = value; }
         }
 
-        virtual public TimeZone TimeZone {
+        virtual public TZImpl TimeZone
+        {
             get { return _timeZone; }
             set { _timeZone = value; }
         }
 
-        virtual public long TimeInMillis {
+        virtual public long TimeInMillis
+        {
             get { return _dateTime.Ticks; }
             set { _dateTime = new DateTime(value); }
         }

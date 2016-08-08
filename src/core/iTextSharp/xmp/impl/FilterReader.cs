@@ -61,7 +61,7 @@ namespace iTextSharp.xmp.impl {
         protected TextReader inp;
 
         protected FilterReader(TextReader inp) {
-            this.inp = Synchronized(inp);
+            this.inp =inp;
         }
 
         /**
@@ -71,7 +71,10 @@ namespace iTextSharp.xmp.impl {
          */
 
         public override int Read() {
-            return inp.Read();
+            lock (this)
+            {
+                return inp.Read();
+            }
         }
 
         /**
@@ -79,8 +82,12 @@ namespace iTextSharp.xmp.impl {
          *
          * @exception  IOException  If an I/O error occurs
          */
-        override public int Read(char[] cbuf, int off, int len) {
-            return inp.Read(cbuf, off, len);
+        override public int Read(char[] cbuf, int off, int len)
+        {
+            lock (this)
+            {
+                return inp.Read(cbuf, off, len);
+            }
         }
 
         ///**
@@ -130,9 +137,16 @@ namespace iTextSharp.xmp.impl {
         //public void Reset() {
         //    inp.Reset();
         //}
-
-        override public void Close() {
-            inp.Close();
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+            inp.Dispose();
         }
+#else
+        public override void Close()
+		{
+            inp.Close();
+		}
+#endif
     }
 }

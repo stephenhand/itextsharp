@@ -85,7 +85,7 @@ namespace iTextSharp.text.xml.xmp {
             MemoryStream bout = new MemoryStream();
             bout.Write(bytes, 0, bytes.Length);
             bout.Seek(0, SeekOrigin.Begin);
-            XmlTextReader xtr = new XmlTextReader(bout);
+            XmlReader xtr = XmlReader.Create(bout);
             domDocument = new XmlDocument();
             domDocument.PreserveWhitespace = true;
             domDocument.Load(xtr);
@@ -193,22 +193,24 @@ namespace iTextSharp.text.xml.xmp {
          */
         virtual public byte[] SerializeDoc() {
             XmlDomWriter xw = new XmlDomWriter();
-            MemoryStream fout = new MemoryStream();
-            xw.SetOutput(fout, null);
-            byte[] b = new UTF8Encoding(false).GetBytes(XPACKET_PI_BEGIN);
-            fout.Write(b, 0, b.Length);
-            fout.Flush();
-            XmlNodeList xmpmeta = domDocument.GetElementsByTagName("x:xmpmeta");
-            xw.Write(xmpmeta[0]);
-            fout.Flush();
-            b = new UTF8Encoding(false).GetBytes(EXTRASPACE);
-            for (int i = 0; i < 20; i++) {
+            using (MemoryStream fout = new MemoryStream())
+            {
+                xw.SetOutput(fout, null);
+                byte[] b = new UTF8Encoding(false).GetBytes(XPACKET_PI_BEGIN);
                 fout.Write(b, 0, b.Length);
+                fout.Flush();
+                XmlNodeList xmpmeta = domDocument.GetElementsByTagName("x:xmpmeta");
+                xw.Write(xmpmeta[0]);
+                fout.Flush();
+                b = new UTF8Encoding(false).GetBytes(EXTRASPACE);
+                for (int i = 0; i < 20; i++)
+                {
+                    fout.Write(b, 0, b.Length);
+                }
+                b = new UTF8Encoding(false).GetBytes(XPACKET_PI_END_W);
+                fout.Write(b, 0, b.Length);
+                return fout.ToArray();
             }
-            b = new UTF8Encoding(false).GetBytes(XPACKET_PI_END_W);
-            fout.Write(b, 0, b.Length);
-            fout.Close();
-            return fout.ToArray();
         }
     }
 }

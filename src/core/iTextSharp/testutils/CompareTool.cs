@@ -326,9 +326,10 @@ public class CompareTool {
 
             xmlReport.AppendChild(root);
             xmlReport.PreserveWhitespace = true;
-
-            using (XmlTextWriter writer = new XmlTextWriter(stream, null)) {
-                writer.Formatting = Formatting.Indented;
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            using (XmlWriter writer = XmlWriter.Create(stream, settings))
+            {
                 xmlReport.Save(writer);
             }
         }
@@ -453,11 +454,11 @@ public class CompareTool {
             while ((line = p.StandardOutput.ReadLine()) != null) {
                 Console.Out.WriteLine(line);
             }
-            p.StandardOutput.Close();;
+            p.StandardOutput.Dispose();;
             while ((line = p.StandardError.ReadLine()) != null) {
                 Console.Out.WriteLine(line);
             }
-            p.StandardError.Close();
+            p.StandardError.Dispose();
             p.WaitForExit();
             if ( p.ExitCode == 0 ) {
                 gsParams = CompareTool.gsParams.Replace("<outputfile>", outPath + outImage).Replace("<inputfile>", outPdf);
@@ -472,11 +473,11 @@ public class CompareTool {
                 while ((line = p.StandardOutput.ReadLine()) != null) {
                     Console.Out.WriteLine(line);
                 }
-                p.StandardOutput.Close();;
+                p.StandardOutput.Dispose();
                 while ((line = p.StandardError.ReadLine()) != null) {
                     Console.Out.WriteLine(line);
                 }
-                p.StandardError.Close();
+                p.StandardError.Dispose();
                 p.WaitForExit();
 
                 if (p.ExitCode == 0) {
@@ -494,12 +495,11 @@ public class CompareTool {
                     for (int i = 0; i < cnt; i++) {
                         if (equalPages != null && equalPages.Contains(i))
                             continue;
+                        bool cmpResult;
                         Console.Out.WriteLine("Comparing page " + (i + 1).ToString() + " (" + imageFiles[i].FullName + ")...");
-                        FileStream is1 = new FileStream(imageFiles[i].FullName, FileMode.Open);
-                        FileStream is2 = new FileStream(cmpImageFiles[i].FullName, FileMode.Open);
-                        bool cmpResult = CompareStreams(is1, is2);
-                        is1.Close();
-                        is2.Close();
+                        using (FileStream is1 = new FileStream(imageFiles[i].FullName, FileMode.Open), is2 = new FileStream(cmpImageFiles[i].FullName, FileMode.Open)) {
+                            cmpResult = CompareStreams(is1, is2);
+                        }
                         if (!cmpResult) {
                             if (File.Exists(compareExec)) {
                                 String compareParams = CompareTool.compareParams.Replace("<image1>", imageFiles[i].FullName).Replace("<image2>", cmpImageFiles[i].FullName).Replace("<difference>", outPath + differenceImagePrefix + (i + 1).ToString() + ".png");
@@ -514,7 +514,7 @@ public class CompareTool {
                                 while ((line = p.StandardError.ReadLine()) != null) {
                                     Console.Out.WriteLine(line);
                                 }
-                                p.StandardError.Close();
+                                p.StandardError.Dispose();
                                 p.WaitForExit();
                                 if (p.ExitCode == 0) {
                                     if (differentPagesFail == null) {

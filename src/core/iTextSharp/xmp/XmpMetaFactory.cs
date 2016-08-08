@@ -44,6 +44,7 @@ namespace iTextSharp.xmp {
         /// <summary>
         /// The singleton instance of the <code>XMPSchemaRegistry</code>.
         /// </summary>
+        private static object sync = new object();
         private static IXmpSchemaRegistry _schema = new XmpSchemaRegistryImpl();
 
         /// <summary>
@@ -212,18 +213,21 @@ namespace iTextSharp.xmp {
         /// its requested.
         /// </summary>
         /// <returns> Returns the version information. </returns>
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public static IXmpVersionInfo GetVersionInfo() {
-            if (_versionInfo == null) {
-                try {
-                    _versionInfo = new XmpVersionInfoImpl();
+            lock (sync)
+            {
+                if (_versionInfo == null) {
+                    try {
+                        _versionInfo = new XmpVersionInfoImpl();
+                    }
+                    catch (Exception e) {
+                        // EMTPY, severe error would be detected during the tests
+                        Console.WriteLine(e);
+                    }
                 }
-                catch (Exception e) {
-                    // EMTPY, severe error would be detected during the tests
-                    Console.WriteLine(e);
-                }
+                return _versionInfo;
+
             }
-            return _versionInfo;
         }
 
         #region Nested type: XmpVersionInfoImpl

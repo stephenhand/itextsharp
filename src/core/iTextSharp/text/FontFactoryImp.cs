@@ -2,10 +2,12 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Security.Permissions;
 using iTextSharp.text.pdf;
 using iTextSharp.text.log;
 using iTextSharp.text;
+#if NET_STANDARD
+using System.Runtime.InteropServices;
+#endif
 
 /*
  * $Id$
@@ -88,20 +90,20 @@ namespace iTextSharp.text {
     
         /// <summary> Creates new FontFactory </summary>
         public FontFactoryImp() {
-            trueTypeFonts.Add(FontFactory.COURIER.ToLower(CultureInfo.InvariantCulture), FontFactory.COURIER);
-            trueTypeFonts.Add(FontFactory.COURIER_BOLD.ToLower(CultureInfo.InvariantCulture), FontFactory.COURIER_BOLD);
-            trueTypeFonts.Add(FontFactory.COURIER_OBLIQUE.ToLower(CultureInfo.InvariantCulture), FontFactory.COURIER_OBLIQUE);
-            trueTypeFonts.Add(FontFactory.COURIER_BOLDOBLIQUE.ToLower(CultureInfo.InvariantCulture), FontFactory.COURIER_BOLDOBLIQUE);
-            trueTypeFonts.Add(FontFactory.HELVETICA.ToLower(CultureInfo.InvariantCulture), FontFactory.HELVETICA);
-            trueTypeFonts.Add(FontFactory.HELVETICA_BOLD.ToLower(CultureInfo.InvariantCulture), FontFactory.HELVETICA_BOLD);
-            trueTypeFonts.Add(FontFactory.HELVETICA_OBLIQUE.ToLower(CultureInfo.InvariantCulture), FontFactory.HELVETICA_OBLIQUE);
-            trueTypeFonts.Add(FontFactory.HELVETICA_BOLDOBLIQUE.ToLower(CultureInfo.InvariantCulture), FontFactory.HELVETICA_BOLDOBLIQUE);
-            trueTypeFonts.Add(FontFactory.SYMBOL.ToLower(CultureInfo.InvariantCulture), FontFactory.SYMBOL);
-            trueTypeFonts.Add(FontFactory.TIMES_ROMAN.ToLower(CultureInfo.InvariantCulture), FontFactory.TIMES_ROMAN);
-            trueTypeFonts.Add(FontFactory.TIMES_BOLD.ToLower(CultureInfo.InvariantCulture), FontFactory.TIMES_BOLD);
-            trueTypeFonts.Add(FontFactory.TIMES_ITALIC.ToLower(CultureInfo.InvariantCulture), FontFactory.TIMES_ITALIC);
-            trueTypeFonts.Add(FontFactory.TIMES_BOLDITALIC.ToLower(CultureInfo.InvariantCulture), FontFactory.TIMES_BOLDITALIC);
-            trueTypeFonts.Add(FontFactory.ZAPFDINGBATS.ToLower(CultureInfo.InvariantCulture), FontFactory.ZAPFDINGBATS);
+            trueTypeFonts.Add(FontFactory.COURIER.ToLowerInvariant(), FontFactory.COURIER);
+            trueTypeFonts.Add(FontFactory.COURIER_BOLD.ToLowerInvariant(), FontFactory.COURIER_BOLD);
+            trueTypeFonts.Add(FontFactory.COURIER_OBLIQUE.ToLowerInvariant(), FontFactory.COURIER_OBLIQUE);
+            trueTypeFonts.Add(FontFactory.COURIER_BOLDOBLIQUE.ToLowerInvariant(), FontFactory.COURIER_BOLDOBLIQUE);
+            trueTypeFonts.Add(FontFactory.HELVETICA.ToLowerInvariant(), FontFactory.HELVETICA);
+            trueTypeFonts.Add(FontFactory.HELVETICA_BOLD.ToLowerInvariant(), FontFactory.HELVETICA_BOLD);
+            trueTypeFonts.Add(FontFactory.HELVETICA_OBLIQUE.ToLowerInvariant(), FontFactory.HELVETICA_OBLIQUE);
+            trueTypeFonts.Add(FontFactory.HELVETICA_BOLDOBLIQUE.ToLowerInvariant(), FontFactory.HELVETICA_BOLDOBLIQUE);
+            trueTypeFonts.Add(FontFactory.SYMBOL.ToLowerInvariant(), FontFactory.SYMBOL);
+            trueTypeFonts.Add(FontFactory.TIMES_ROMAN.ToLowerInvariant(), FontFactory.TIMES_ROMAN);
+            trueTypeFonts.Add(FontFactory.TIMES_BOLD.ToLowerInvariant(), FontFactory.TIMES_BOLD);
+            trueTypeFonts.Add(FontFactory.TIMES_ITALIC.ToLowerInvariant(), FontFactory.TIMES_ITALIC);
+            trueTypeFonts.Add(FontFactory.TIMES_BOLDITALIC.ToLowerInvariant(), FontFactory.TIMES_BOLDITALIC);
+            trueTypeFonts.Add(FontFactory.ZAPFDINGBATS.ToLowerInvariant(), FontFactory.ZAPFDINGBATS);
 
             List<string> tmp;
             tmp = new List<string>();
@@ -109,26 +111,26 @@ namespace iTextSharp.text {
             tmp.Add(FontFactory.COURIER_BOLD);
             tmp.Add(FontFactory.COURIER_OBLIQUE);
             tmp.Add(FontFactory.COURIER_BOLDOBLIQUE);
-            fontFamilies[FontFactory.COURIER.ToLower(CultureInfo.InvariantCulture)] = tmp;
+            fontFamilies[FontFactory.COURIER.ToLowerInvariant()] = tmp;
             tmp = new List<string>();
             tmp.Add(FontFactory.HELVETICA);
             tmp.Add(FontFactory.HELVETICA_BOLD);
             tmp.Add(FontFactory.HELVETICA_OBLIQUE);
             tmp.Add(FontFactory.HELVETICA_BOLDOBLIQUE);
-            fontFamilies[FontFactory.HELVETICA.ToLower(CultureInfo.InvariantCulture)] = tmp;
+            fontFamilies[FontFactory.HELVETICA.ToLowerInvariant()] = tmp;
             tmp = new List<string>();
             tmp.Add(FontFactory.SYMBOL);
-            fontFamilies[FontFactory.SYMBOL.ToLower(CultureInfo.InvariantCulture)] = tmp;
+            fontFamilies[FontFactory.SYMBOL.ToLowerInvariant()] = tmp;
             tmp = new List<string>();
             tmp.Add(FontFactory.TIMES_ROMAN);
             tmp.Add(FontFactory.TIMES_BOLD);
             tmp.Add(FontFactory.TIMES_ITALIC);
             tmp.Add(FontFactory.TIMES_BOLDITALIC);
-            fontFamilies[FontFactory.TIMES.ToLower(CultureInfo.InvariantCulture)] = tmp;
-            fontFamilies[FontFactory.TIMES_ROMAN.ToLower(CultureInfo.InvariantCulture)] = tmp;
+            fontFamilies[FontFactory.TIMES.ToLowerInvariant()] = tmp;
+            fontFamilies[FontFactory.TIMES_ROMAN.ToLowerInvariant()] = tmp;
             tmp = new List<string>();
             tmp.Add(FontFactory.ZAPFDINGBATS);
-            fontFamilies[FontFactory.ZAPFDINGBATS.ToLower(CultureInfo.InvariantCulture)] = tmp;
+            fontFamilies[FontFactory.ZAPFDINGBATS.ToLowerInvariant()] = tmp;
         }
     
         /// <summary>
@@ -158,7 +160,7 @@ namespace iTextSharp.text {
         /// <returns>a Font object</returns>
         public virtual Font GetFont(string fontname, string encoding, bool embedded, float size, int style, BaseColor color, bool cached) {
             if (fontname == null) return new Font(Font.FontFamily.UNDEFINED, size, style, color);
-            string lowercasefontname = fontname.ToLower(CultureInfo.InvariantCulture);
+            string lowercasefontname = fontname.ToLowerInvariant();
             List<string> tmp;
             fontFamilies.TryGetValue(lowercasefontname, out tmp);
             if(tmp != null) {
@@ -168,7 +170,7 @@ namespace iTextSharp.text {
                     int fs = Font.NORMAL;
                     bool found = false;
                     foreach (string f in tmp) {
-                        string lcf = f.ToLower(CultureInfo.InvariantCulture);
+                        string lcf = f.ToLowerInvariant();
                         fs = Font.NORMAL;
                         if (lcf.IndexOf("bold") != -1) fs |= Font.BOLD;
                         if (lcf.IndexOf("italic") != -1 || lcf.IndexOf("oblique") != -1) fs |= Font.ITALIC;
@@ -414,11 +416,11 @@ namespace iTextSharp.text {
         /// <param name="alias">the alias you want to use for the font</param>
         public virtual void Register(string path, string alias) {
             try {
-                if (path.ToLower(CultureInfo.InvariantCulture).EndsWith(".ttf") || path.ToLower(CultureInfo.InvariantCulture).EndsWith(".otf") || path.ToLower(CultureInfo.InvariantCulture).IndexOf(".ttc,") > 0) {
+                if (path.ToLowerInvariant().EndsWith(".ttf") || path.ToLowerInvariant().EndsWith(".otf") || path.ToLowerInvariant().IndexOf(".ttc,") > 0) {
                     Object[] allNames = BaseFont.GetAllFontNames(path, BaseFont.WINANSI, null);
-                    trueTypeFonts[((string)allNames[0]).ToLower(CultureInfo.InvariantCulture)] = path;
+                    trueTypeFonts[((string)allNames[0]).ToLowerInvariant()] = path;
                     if (alias != null) {
-                        string lcAlias = alias.ToLower(CultureInfo.InvariantCulture);
+                        string lcAlias = alias.ToLowerInvariant();
                         trueTypeFonts[lcAlias] = path;
                         if (lcAlias.EndsWith("regular")) {
                             //do this job to give higher priority to regular fonts in comparison with light, narrow, etc
@@ -428,7 +430,7 @@ namespace iTextSharp.text {
                     // register all the font names with all the locales
                     string[][] names = (string[][])allNames[2]; //full name
                     for (int i = 0; i < names.Length; i++) {
-                        string lcName = names[i][3].ToLower(CultureInfo.InvariantCulture);
+                        string lcName = names[i][3].ToLowerInvariant();
                         trueTypeFonts[lcName] = path;
                         if (lcName.EndsWith("regular")) {
                             //do this job to give higher priority to regular fonts in comparison with light, narrow, etc
@@ -441,7 +443,7 @@ namespace iTextSharp.text {
                     for (int k = 0; k < TTFamilyOrder.Length; k += 3) {
                         foreach (string[] name in names) {
                             if (TTFamilyOrder[k].Equals(name[0]) && TTFamilyOrder[k + 1].Equals(name[1]) && TTFamilyOrder[k + 2].Equals(name[2])) {
-                                familyName = name[3].ToLower(CultureInfo.InvariantCulture);
+                                familyName = name[3].ToLowerInvariant();
                                 k = TTFamilyOrder.Length;
                                 break;
                             }
@@ -464,7 +466,7 @@ namespace iTextSharp.text {
                         }
                     }
                 }
-                else if (path.ToLower(CultureInfo.InvariantCulture).EndsWith(".ttc")) {
+                else if (path.ToLowerInvariant().EndsWith(".ttc")) {
                     if (alias != null)
                         LOGGER.Error("You can't define an alias for a true type collection.");
                     string[] names = BaseFont.EnumerateTTCNames(path);
@@ -472,11 +474,11 @@ namespace iTextSharp.text {
                         Register(path + "," + i);
                     }
                 }
-                else if (path.ToLower(CultureInfo.InvariantCulture).EndsWith(".afm") || path.ToLower(CultureInfo.InvariantCulture).EndsWith(".pfm")) {
+                else if (path.ToLowerInvariant().EndsWith(".afm") || path.ToLowerInvariant().EndsWith(".pfm")) {
                     BaseFont bf = BaseFont.CreateFont(path, BaseFont.CP1252, false);
-                    String fullName = (bf.FullFontName[0][3]).ToLower(CultureInfo.InvariantCulture);
-                    String familyName = (bf.FamilyFontName[0][3]).ToLower(CultureInfo.InvariantCulture);
-                    String psName = bf.PostscriptFontName.ToLower(CultureInfo.InvariantCulture);
+                    String fullName = (bf.FullFontName[0][3]).ToLowerInvariant();
+                    String familyName = (bf.FamilyFontName[0][3]).ToLowerInvariant();
+                    String psName = bf.PostscriptFontName.ToLowerInvariant();
                     RegisterFamily(familyName, fullName, null);
                     trueTypeFonts[psName] = path;
                     trueTypeFonts[fullName] = path;
@@ -541,7 +543,7 @@ namespace iTextSharp.text {
                             }
                         } else {
                             String name = Path.GetFullPath(files[k]);
-                            String suffix = name.Length < 4 ? null : name.Substring(name.Length - 4).ToLower(CultureInfo.InvariantCulture);
+                            String suffix = name.Length < 4 ? null : name.Substring(name.Length - 4).ToLowerInvariant();
                             if (".afm".Equals(suffix) || ".pfm".Equals(suffix)) {
                                 /* Only register Type 1 fonts with matching .pfb files */
                                 string pfb = name.Substring(0, name.Length - 4) + ".pfb";
@@ -570,10 +572,16 @@ namespace iTextSharp.text {
         * @return the number of fonts registered
         */    
         public virtual int RegisterDirectories() {
+
+#if NET_STANDARD
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+#else
             if (Environment.OSVersion.Platform == PlatformID.Unix || 
                 Environment.OSVersion.Platform == PlatformID.MacOSX)
-            {
-                // Use paths specific to Linux and MacOSX
+            
+#endif
+            {    
+                    // Use paths specific to Linux and MacOSX
                 int count = 0;
 
                 // Linux
@@ -592,7 +600,11 @@ namespace iTextSharp.text {
             try {
                 
                 if (SystemPath == null) {
+#if NET_STANDARD
+                    SystemPath = Environment.GetEnvironmentVariable("SYSTEMROOT");
+#else
                     SystemPath = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.System)).FullName;
+#endif
                 }
                 string dir = Path.Combine(SystemPath,"Fonts");
 
@@ -629,7 +641,7 @@ namespace iTextSharp.text {
         /// <param name="fontname">the name of the font that has to be checked</param>
         /// <returns>true if the font is found</returns>
         public virtual bool IsRegistered(string fontname) {
-            return trueTypeFonts.ContainsKey(fontname.ToLower(CultureInfo.InvariantCulture));
+            return trueTypeFonts.ContainsKey(fontname.ToLowerInvariant());
         }
 
         public virtual string DefaultEncoding {

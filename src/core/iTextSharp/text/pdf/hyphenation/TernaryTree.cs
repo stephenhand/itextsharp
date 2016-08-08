@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
 using System.Text;
+#if NET_STANDARD
+using System.shims;
+#endif
 
 /*
  * $Id$
@@ -10,6 +13,10 @@ using System.Text;
  */
 
 namespace iTextSharp.text.pdf.hyphenation {
+
+#if NET_STANDARD
+    using ICloneable = IClonableShim;
+#endif
     /**
      * <h2>Ternary Search Tree</h2>
      *

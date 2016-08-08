@@ -95,12 +95,14 @@ namespace iTextSharp.text.xml {
                             fOut.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
                         }
                         fOut.Flush();
+#if !NET_STANDARD
                         Write(document.DocumentType);
+#endif
                     }
                     Write(document.DocumentElement);
                     break;
                 }
-                
+#if !NET_STANDARD
                 case XmlNodeType.DocumentType: {
                     XmlDocumentType doctype = (XmlDocumentType)node;
                     fOut.Write("<!DOCTYPE ");
@@ -127,7 +129,7 @@ namespace iTextSharp.text.xml {
                     fOut.WriteLine('>');
                     break;
                 }
-                
+#endif
                 case XmlNodeType.Element: {
                     fOut.Write('<');
                     fOut.Write(node.Name);

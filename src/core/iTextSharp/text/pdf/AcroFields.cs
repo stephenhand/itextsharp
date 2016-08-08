@@ -1365,8 +1365,11 @@ namespace iTextSharp.text.pdf {
             
             PdfString richString = new PdfString(richValue);
             item.WriteToAll(PdfName.RV, richString, Item.WRITE_MERGED | Item.WRITE_VALUE);
-            
+#if NET_STANDARD
+            Stream isp = new MemoryStream(Encoding.UTF8.GetBytes(richValue));
+#else
             Stream isp = new MemoryStream(Encoding.Default.GetBytes(richValue));
+#endif
             PdfString valueString = new PdfString(XmlToTxt.Parse(isp));
             item.WriteToAll(PdfName.V, valueString, Item.WRITE_MERGED | Item.WRITE_VALUE);
             return true;
@@ -2334,16 +2337,13 @@ namespace iTextSharp.text.pdf {
         private void UpdateByteRange(PdfPKCS7 pkcs7, PdfDictionary v) {
             PdfArray b = v.GetAsArray(PdfName.BYTERANGE);
             RandomAccessFileOrArray rf = reader.SafeFile;
-            Stream rg = null;
-            try {
-                rg = new RASInputStream(new RandomAccessSourceFactory().CreateRanged(rf.CreateSourceView(), b.AsLongArray()));
+            using (Stream rg = new RASInputStream(new RandomAccessSourceFactory().CreateRanged(rf.CreateSourceView(), b.AsLongArray()))) {
+                ;
                 byte[] buf = new byte[8192];
                 int rd;
                 while ((rd = rg.Read(buf, 0, buf.Length)) > 0) {
                     pkcs7.Update(buf, 0, rd);
                 }
-            } finally {
-                if (rg != null) rg.Close();
             }
         }
 

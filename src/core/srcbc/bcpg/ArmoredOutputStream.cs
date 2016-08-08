@@ -98,7 +98,7 @@ namespace Org.BouncyCastle.Bcpg
         private static readonly string	footerTail = "-----";
 
         private static readonly string version = "BCPG C# v"
-			+ Assembly.GetExecutingAssembly().GetName().Version;
+			+ typeof(ArmoredOutputStream).GetTypeInfo().Assembly.GetName().Version;
 
 		private readonly IDictionary headers;
 
@@ -280,6 +280,43 @@ namespace Org.BouncyCastle.Bcpg
          * <b>Note</b>: close does nor close the underlying stream. So it is possible to write
          * multiple objects using armoring to a single stream.
          */
+
+#if NET_STANDARD
+        protected override void Dispose(Boolean disposing)
+        {
+
+            if (type != null)
+            {
+                if (bufPtr > 0)
+                {
+                    Encode(outStream, buf, bufPtr);
+                }
+
+                DoWrite(nl + '=');
+
+                int crcV = crc.Value;
+
+                buf[0] = ((crcV >> 16) & 0xff);
+                buf[1] = ((crcV >> 8) & 0xff);
+                buf[2] = (crcV & 0xff);
+
+                Encode(outStream, buf, 3);
+
+                DoWrite(nl);
+                DoWrite(footerStart);
+                DoWrite(type);
+                DoWrite(footerTail);
+                DoWrite(nl);
+
+                outStream.Flush();
+
+                type = null;
+                start = true;
+                base.Dispose();
+            }
+        }
+#else
+
         public override void Close()
         {
             if (type != null)
@@ -312,8 +349,9 @@ namespace Org.BouncyCastle.Bcpg
 				base.Close();
 			}
         }
+#endif
 
-		private void WriteHeaderEntry(
+        private void WriteHeaderEntry(
 			string	name,
 			string	v)
         {

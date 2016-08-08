@@ -293,7 +293,10 @@ namespace iTextSharp.xmp.impl {
         private static XmlReaderSettings GetSecureReaderSettings()
         {
             XmlReaderSettings settings = new XmlReaderSettings();
+
+#if !NET_STANDARD
             settings.ProhibitDtd = true;
+#endif
             return settings;
         }
 

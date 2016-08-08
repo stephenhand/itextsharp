@@ -1,4 +1,6 @@
 using System;
+using iTextSharp.xmp.timezone;
+
 
 //Copyright (c) 2006, Adobe Systems Incorporated
 //All rights reserved.
@@ -81,8 +83,13 @@ namespace iTextSharp.xmp {
 
 
         /// <returns> Returns the time zone. </returns>
-        TimeZone TimeZone { get; set; }
 
+#if NET_STANDARD
+        TimeZoneInfo TimeZone { get; set; }
+#else
+
+        TimeZone TimeZone { get; set; }
+#endif
         /// <returns> Returns a <code>Calendar</code> (only with milli second precision). <br>
         ///  		<em>Note:</em> the dates before Oct 15th 1585 (which normally fall into validity of 
         ///  		the Julian calendar) are also rendered internally as Gregorian dates.  </returns>

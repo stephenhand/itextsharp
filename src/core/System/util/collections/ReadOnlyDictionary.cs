@@ -78,7 +78,9 @@ namespace System.util.collections {
     /// base class instead of creating their own. 
     /// </para>
     /// </remarks>
+#if !NET_STANDARD
     [Serializable]
+#endif
     public class ReadOnlyDictionary<TKey, TValue> : IDictionary<TKey, TValue>,
         ICollection {
         private readonly IDictionary<TKey, TValue> source;

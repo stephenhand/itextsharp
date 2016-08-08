@@ -118,9 +118,15 @@ namespace iTextSharp.text.pdf {
             counter += count;
             outc.Write(buffer, offset, count);
         }
-    
+#if NET_STANDARD
+        protected override void Dispose(bool disposing)
+        {
+            outc.Dispose();
+        }
+#else
         public override void Close() {
             outc.Close ();
         }
+#endif
     }
 }

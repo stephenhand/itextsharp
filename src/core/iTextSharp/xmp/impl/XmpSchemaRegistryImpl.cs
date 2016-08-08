@@ -83,67 +83,83 @@ namespace iTextSharp.xmp.impl {
         #region XmpSchemaRegistry Members
 
         /// <seealso cref= XMPSchemaRegistry#registerNamespace(String, String) </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public string RegisterNamespace(string namespaceUri, string suggestedPrefix) {
-            ParameterAsserts.AssertSchemaNs(namespaceUri);
-            ParameterAsserts.AssertPrefix(suggestedPrefix);
+            lock (this)
+            {
+                ParameterAsserts.AssertSchemaNs(namespaceUri);
+                ParameterAsserts.AssertPrefix(suggestedPrefix);
 
-            if (suggestedPrefix[suggestedPrefix.Length - 1] != ':') {
-                suggestedPrefix += ':';
-            }
-
-            if (!Utils.IsXmlNameNs(suggestedPrefix.Substring(0, suggestedPrefix.Length - 1))) {
-                throw new XmpException("The prefix is a bad XML name", XmpError.BADXML);
-            }
-
-            string registeredPrefix = (string) _namespaceToPrefixMap[namespaceUri];
-            string registeredNs = (string) _prefixToNamespaceMap[suggestedPrefix];
-            if (registeredPrefix != null) {
-                // Return the actual prefix
-                return registeredPrefix;
-            }
-            if (registeredNs != null) {
-                // the namespace is new, but the prefix is already engaged,
-                // we generate a new prefix out of the suggested
-                string generatedPrefix = suggestedPrefix;
-                for (int i = 1; _prefixToNamespaceMap.Contains(generatedPrefix); i++) {
-                    generatedPrefix = suggestedPrefix.Substring(0, suggestedPrefix.Length - 1) + "_" + i + "_:";
+                if (suggestedPrefix[suggestedPrefix.Length - 1] != ':')
+                {
+                    suggestedPrefix += ':';
                 }
-                suggestedPrefix = generatedPrefix;
-            }
-            _prefixToNamespaceMap[suggestedPrefix] = namespaceUri;
-            _namespaceToPrefixMap[namespaceUri] = suggestedPrefix;
 
-            // Return the suggested prefix
-            return suggestedPrefix;
+                if (!Utils.IsXmlNameNs(suggestedPrefix.Substring(0, suggestedPrefix.Length - 1)))
+                {
+                    throw new XmpException("The prefix is a bad XML name", XmpError.BADXML);
+                }
+
+                string registeredPrefix = (string)_namespaceToPrefixMap[namespaceUri];
+                string registeredNs = (string)_prefixToNamespaceMap[suggestedPrefix];
+                if (registeredPrefix != null)
+                {
+                    // Return the actual prefix
+                    return registeredPrefix;
+                }
+                if (registeredNs != null)
+                {
+                    // the namespace is new, but the prefix is already engaged,
+                    // we generate a new prefix out of the suggested
+                    string generatedPrefix = suggestedPrefix;
+                    for (int i = 1; _prefixToNamespaceMap.Contains(generatedPrefix); i++)
+                    {
+                        generatedPrefix = suggestedPrefix.Substring(0, suggestedPrefix.Length - 1) + "_" + i + "_:";
+                    }
+                    suggestedPrefix = generatedPrefix;
+                }
+                _prefixToNamespaceMap[suggestedPrefix] = namespaceUri;
+                _namespaceToPrefixMap[namespaceUri] = suggestedPrefix;
+
+                // Return the suggested prefix
+                return suggestedPrefix;
+            }
         }
 
 
         /// <seealso cref= XMPSchemaRegistry#deleteNamespace(String) </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public void DeleteNamespace(string namespaceUri) {
-            string prefixToDelete = GetNamespacePrefix(namespaceUri);
-            if (prefixToDelete != null) {
-                _namespaceToPrefixMap.Remove(namespaceUri);
-                _prefixToNamespaceMap.Remove(prefixToDelete);
+        public void DeleteNamespace(string namespaceUri)
+        {
+            lock (this)
+            {
+                string prefixToDelete = GetNamespacePrefix(namespaceUri);
+                if (prefixToDelete != null)
+                {
+                    _namespaceToPrefixMap.Remove(namespaceUri);
+                    _prefixToNamespaceMap.Remove(prefixToDelete);
+                }
             }
         }
 
 
         /// <seealso cref= XMPSchemaRegistry#getNamespacePrefix(String) </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public string GetNamespacePrefix(string namespaceUri) {
-            return (string) _namespaceToPrefixMap[namespaceUri];
+            lock (this)
+            {
+                return (string)_namespaceToPrefixMap[namespaceUri];
+            }
         }
 
 
         /// <seealso cref= XMPSchemaRegistry#getNamespaceURI(String) </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public string GetNamespaceUri(string namespacePrefix) {
-            if (namespacePrefix != null && !namespacePrefix.EndsWith(":")) {
-                namespacePrefix += ":";
+            lock (this)
+            {
+                if (namespacePrefix != null && !namespacePrefix.EndsWith(":"))
+                {
+                    namespacePrefix += ":";
+                }
+                return (string)_prefixToNamespaceMap[namespacePrefix];
             }
-            return (string) _prefixToNamespaceMap[namespacePrefix];
         }
 
 
@@ -152,59 +168,77 @@ namespace iTextSharp.xmp.impl {
 
 
         /// <seealso cref= XMPSchemaRegistry#resolveAlias(String, String) </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public IXmpAliasInfo ResolveAlias(string aliasNs, string aliasProp) {
-            string aliasPrefix = GetNamespacePrefix(aliasNs);
-            if (aliasPrefix == null) {
-                return null;
-            }
+        public IXmpAliasInfo ResolveAlias(string aliasNs, string aliasProp) {           
+            lock (this)
+            {
+                string aliasPrefix = GetNamespacePrefix(aliasNs);
+                if (aliasPrefix == null) {
+                    return null;
+                }
 
-            return (IXmpAliasInfo) _aliasMap[aliasPrefix + aliasProp];
+                return (IXmpAliasInfo) _aliasMap[aliasPrefix + aliasProp];
+            }
         }
 
 
         /// <seealso cref= XMPSchemaRegistry#findAlias(java.lang.String) </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public IXmpAliasInfo FindAlias(string qname) {
-            return (IXmpAliasInfo) _aliasMap[qname];
+            lock (this)
+            {
+                return (IXmpAliasInfo)_aliasMap[qname];
+            }
         }
 
 
         /// <seealso cref= XMPSchemaRegistry#findAliases(String) </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public IXmpAliasInfo[] FindAliases(string aliasNs) {
-            string prefix = GetNamespacePrefix(aliasNs);
-            IList result = new ArrayList();
-            if (prefix != null) {
-                for (IEnumerator it = _aliasMap.Keys.GetEnumerator(); it.MoveNext();) {
-                    string qname = (string) it.Current;
-                    if (qname != null && qname.StartsWith(prefix)) {
-                        result.Add(FindAlias(qname));
+        public IXmpAliasInfo[] FindAliases(string aliasNs)
+        {
+            lock (this)
+            {
+                string prefix = GetNamespacePrefix(aliasNs);
+                IList result = new ArrayList();
+                if (prefix != null)
+                {
+                    for (IEnumerator it = _aliasMap.Keys.GetEnumerator(); it.MoveNext();)
+                    {
+                        string qname = (string)it.Current;
+                        if (qname != null && qname.StartsWith(prefix))
+                        {
+                            result.Add(FindAlias(qname));
+                        }
                     }
                 }
+                IXmpAliasInfo[] array = new IXmpAliasInfo[result.Count];
+                result.CopyTo(array, 0);
+                return array;
             }
-            IXmpAliasInfo[] array = new IXmpAliasInfo[result.Count];
-            result.CopyTo(array, 0);
-            return array;
         }
 
         /// <seealso cref= XMPSchemaRegistry#getNamespaces() </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public IDictionary GetNamespaces() {
-            return ReadOnlyDictionary.ReadOnly(new Hashtable(_namespaceToPrefixMap));
+        public IDictionary GetNamespaces()
+        {
+            lock (this)
+            {
+                return ReadOnlyDictionary.ReadOnly(new Hashtable(_namespaceToPrefixMap));
+            }
         }
 
 
         /// <seealso cref= XMPSchemaRegistry#getPrefixes() </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
         public IDictionary GetPrefixes() {
-            return ReadOnlyDictionary.ReadOnly(new Hashtable(_prefixToNamespaceMap));
+            lock (this)
+            {
+                return ReadOnlyDictionary.ReadOnly(new Hashtable(_prefixToNamespaceMap));
+            }
         }
 
         /// <seealso cref= XMPSchemaRegistry#getAliases() </seealso>
-        [MethodImpl(MethodImplOptions.Synchronized)]
-        public IDictionary GetAliases() {
-            return ReadOnlyDictionary.ReadOnly(new Hashtable(_aliasMap));
+        public IDictionary GetAliases()
+        {
+            lock (this)
+            {
+                return ReadOnlyDictionary.ReadOnly(new Hashtable(_aliasMap));
+            }
         }
 
         #endregion
@@ -320,48 +354,56 @@ namespace iTextSharp.xmp.impl {
         ///            an array or not (see <seealso cref="AliasOptions"/>). </param>
         /// <exception cref="XmpException">
         ///             for inconsistant aliases. </exception>
-        [MethodImpl(MethodImplOptions.Synchronized)]
         private void RegisterAlias(string aliasNs, string aliasProp, string actualNs, string actualProp,
-                                   AliasOptions aliasForm) {
-            ParameterAsserts.AssertSchemaNs(aliasNs);
-            ParameterAsserts.AssertPropName(aliasProp);
-            ParameterAsserts.AssertSchemaNs(actualNs);
-            ParameterAsserts.AssertPropName(actualProp);
+                                   AliasOptions aliasForm)
+        {
+            lock (this)
+            {
+                ParameterAsserts.AssertSchemaNs(aliasNs);
+                ParameterAsserts.AssertPropName(aliasProp);
+                ParameterAsserts.AssertSchemaNs(actualNs);
+                ParameterAsserts.AssertPropName(actualProp);
 
-            // Fix the alias options
-            AliasOptions aliasOpts = aliasForm != null
-                                         ? new AliasOptions(
-                                               XmpNodeUtils.VerifySetOptions(aliasForm.ToPropertyOptions(), null).
-                                                   Options)
-                                         : new AliasOptions();
-            if (_regex.IsMatch(aliasProp) || _regex.IsMatch(actualProp)) {
-                throw new XmpException("Alias and actual property names must be simple", XmpError.BADXPATH);
+                // Fix the alias options
+                AliasOptions aliasOpts = aliasForm != null
+                                             ? new AliasOptions(
+                                                   XmpNodeUtils.VerifySetOptions(aliasForm.ToPropertyOptions(), null).
+                                                       Options)
+                                             : new AliasOptions();
+                if (_regex.IsMatch(aliasProp) || _regex.IsMatch(actualProp))
+                {
+                    throw new XmpException("Alias and actual property names must be simple", XmpError.BADXPATH);
+                }
+
+                // check if both namespaces are registered
+                string aliasPrefix = GetNamespacePrefix(aliasNs);
+                string actualPrefix = GetNamespacePrefix(actualNs);
+                if (aliasPrefix == null)
+                {
+                    throw new XmpException("Alias namespace is not registered", XmpError.BADSCHEMA);
+                }
+                if (actualPrefix == null)
+                {
+                    throw new XmpException("Actual namespace is not registered", XmpError.BADSCHEMA);
+                }
+
+                string key = aliasPrefix + aliasProp;
+
+                // check if alias is already existing
+                if (_aliasMap.Contains(key))
+                {
+                    throw new XmpException("Alias is already existing", XmpError.BADPARAM);
+                }
+                if (_aliasMap.Contains(actualPrefix + actualProp))
+                {
+                    throw new XmpException("Actual property is already an alias, use the base property",
+                                           XmpError.BADPARAM);
+                }
+
+                IXmpAliasInfo aliasInfo = new XmpAliasInfoImpl(actualNs, actualPrefix, actualProp, aliasOpts);
+
+                _aliasMap[key] = aliasInfo;
             }
-
-            // check if both namespaces are registered
-            string aliasPrefix = GetNamespacePrefix(aliasNs);
-            string actualPrefix = GetNamespacePrefix(actualNs);
-            if (aliasPrefix == null) {
-                throw new XmpException("Alias namespace is not registered", XmpError.BADSCHEMA);
-            }
-            if (actualPrefix == null) {
-                throw new XmpException("Actual namespace is not registered", XmpError.BADSCHEMA);
-            }
-
-            string key = aliasPrefix + aliasProp;
-
-            // check if alias is already existing
-            if (_aliasMap.Contains(key)) {
-                throw new XmpException("Alias is already existing", XmpError.BADPARAM);
-            }
-            if (_aliasMap.Contains(actualPrefix + actualProp)) {
-                throw new XmpException("Actual property is already an alias, use the base property",
-                                       XmpError.BADPARAM);
-            }
-
-            IXmpAliasInfo aliasInfo = new XmpAliasInfoImpl(actualNs, actualPrefix, actualProp, aliasOpts);
-
-            _aliasMap[key] = aliasInfo;
         }
 
 
