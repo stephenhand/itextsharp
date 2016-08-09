@@ -91,15 +91,16 @@ namespace Org.BouncyCastle.Asn1
 		{
 			// TODO Intermediate buffer could be avoided if we could calculate expected length
 			MemoryStream bOut = new MemoryStream();
-			DerOutputStream dOut = new DerOutputStream(bOut);
+            using (DerOutputStream dOut = new DerOutputStream(bOut))
+            {
 
-			foreach (Asn1Encodable obj in this)
-			{
-				dOut.WriteObject(obj);
-			}
+                foreach (Asn1Encodable obj in this)
+                {
+                    dOut.WriteObject(obj);
+                }
 
-			dOut.Close();
-
+            }
+            
 			byte[] bytes = bOut.ToArray();
 
 			derOut.WriteEncoded(Asn1Tags.Set | Asn1Tags.Constructed, bytes);

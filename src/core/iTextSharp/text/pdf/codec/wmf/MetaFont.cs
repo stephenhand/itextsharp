@@ -117,7 +117,7 @@ namespace iTextSharp.text.pdf.codec.wmf {
             catch {
                 faceName = System.Text.ASCIIEncoding.ASCII.GetString(name, 0, k);
             }
-            faceName = faceName.ToLower(System.Globalization.CultureInfo.InvariantCulture);
+            faceName = faceName.ToLowerInvariant();
         }
     
         virtual public BaseFont Font {

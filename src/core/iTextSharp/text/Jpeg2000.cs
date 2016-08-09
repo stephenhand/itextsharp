@@ -10,6 +10,7 @@ using System.util;
 using iTextSharp.text.pdf;
 using iTextSharp.text.error_messages;
 using System.Threading;
+using iTextSharp.core.System.shims;
 /*
 * $Id$
 * 
@@ -202,18 +203,9 @@ namespace iTextSharp.text
                 {
                     w = WebRequest.Create(url);
                     w.Credentials = CredentialCache.DefaultCredentials;
-                    ManualResetEvent done = new ManualResetEvent(false);
-                    AsyncCallback cb = delegate (IAsyncResult res)
-                    {
-                        using (WebResponse resp = w.EndGetResponse(res))
-                        {
+                    SynchronousWebRequest.GetResponse(w, delegate(WebResponse resp) {
                             ProcessJpegStream(resp.GetResponseStream());
-                        }
-
-                        done.Set();
-                    };
-                    w.BeginGetResponse(cb, null);
-                    done.WaitOne();
+                    });
                 }
                 else
                 {

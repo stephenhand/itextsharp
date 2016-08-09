@@ -83,7 +83,7 @@ namespace iTextSharp.text.pdf {
             if (ttcName.Length < nameBase.Length)
                 ttcIndex = nameBase.Substring(ttcName.Length + 1);
             FontType = FONT_TYPE_TTUNI;
-            if ((fileName.ToLower(System.Globalization.CultureInfo.InvariantCulture).EndsWith(".ttf") || fileName.ToLower(System.Globalization.CultureInfo.InvariantCulture).EndsWith(".otf") || fileName.ToLower(System.Globalization.CultureInfo.InvariantCulture).EndsWith(".ttc")) && ((enc.Equals(IDENTITY_H) || enc.Equals(IDENTITY_V)) && emb)) {
+            if ((fileName.ToLowerInvariant().EndsWith(".ttf") || fileName.ToLowerInvariant().EndsWith(".otf") || fileName.ToLowerInvariant().EndsWith(".ttc")) && ((enc.Equals(IDENTITY_H) || enc.Equals(IDENTITY_V)) && emb)) {
                 Process(ttfAfm, forceRead);
                 if (os_2.fsType == 2)
                     throw new DocumentException(MessageLocalization.GetComposedMessage("1.cannot.be.embedded.due.to.licensing.restrictions", fileName + style));

@@ -114,28 +114,29 @@ namespace iTextSharp.xmp.impl {
         /// <exception cref="XmpException"> If case of wrong options or any other serialization error. </exception>
         public virtual void Serialize(IXmpMeta xmp, Stream @out, SerializeOptions options) {
             try {
-                _outputStream = new CountOutputStream(@out);
-                _xmp = (XmpMetaImpl) xmp;
-                _options = options;
-                _padding = options.Padding;
+                using (_outputStream = new CountOutputStream(@out))
+                {
+                    _xmp = (XmpMetaImpl)xmp;
+                    _options = options;
+                    _padding = options.Padding;
 
-                _writer = new StreamWriter(_outputStream, new EncodingNoPreamble(IanaEncodings.GetEncodingEncoding(options.Encoding)));
+                    _writer = new StreamWriter(_outputStream, new EncodingNoPreamble(IanaEncodings.GetEncodingEncoding(options.Encoding)));
 
-                CheckOptionsConsistence();
+                    CheckOptionsConsistence();
 
-                // serializes the whole packet, but don't write the tail yet 
-                // and flush to make sure that the written bytes are calculated correctly
-                string tailStr = SerializeAsRdf();
-                _writer.Flush();
+                    // serializes the whole packet, but don't write the tail yet 
+                    // and flush to make sure that the written bytes are calculated correctly
+                    string tailStr = SerializeAsRdf();
+                    _writer.Flush();
 
-                // adds padding
-                AddPadding(tailStr.Length);
+                    // adds padding
+                    AddPadding(tailStr.Length);
 
-                // writes the tail
-                Write(tailStr);
-                _writer.Flush();
+                    // writes the tail
+                    Write(tailStr);
+                    _writer.Flush();
 
-                _outputStream.Close();
+                }
             }
             catch (IOException) {
                 throw new XmpException("Error writing to the OutputStream", XmpError.UNKNOWN);

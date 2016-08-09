@@ -131,7 +131,7 @@ namespace iTextSharp.xmp.impl {
                         _state = STATE_HEX;
                     }
                     else if ('0' <= ch && ch <= '9') {
-                        _control = Convert.ToInt32(ch.ToString(CultureInfo.InvariantCulture), 10);
+                        _control = Convert.ToInt32(ch.ToString(), 10);
                         _digits = 1;
                         _state = STATE_DIG1;
                     }
@@ -142,7 +142,7 @@ namespace iTextSharp.xmp.impl {
 
                 case STATE_DIG1:
                     if ('0' <= ch && ch <= '9') {
-                        _control = _control*10 + Convert.ToInt32(ch.ToString(CultureInfo.InvariantCulture), 10);
+                        _control = _control*10 + Convert.ToInt32(ch.ToString(), 10);
                         _digits++;
                         _state = _digits <= 5 ? STATE_DIG1 : STATE_ERROR;
                     }
@@ -157,7 +157,7 @@ namespace iTextSharp.xmp.impl {
 
                 case STATE_HEX:
                     if (('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'f') || ('A' <= ch && ch <= 'F')) {
-                        _control = _control*16 + Convert.ToInt32(ch.ToString(CultureInfo.InvariantCulture), 16);
+                        _control = _control*16 + Convert.ToInt32(ch.ToString(), 16);
                         _digits++;
                         _state = _digits <= 4 ? STATE_HEX : STATE_ERROR;
                     }

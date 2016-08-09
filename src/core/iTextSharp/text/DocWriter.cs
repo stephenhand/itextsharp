@@ -218,7 +218,7 @@ namespace iTextSharp.text {
             open = false;
             os.Flush();
             if (closeStream)
-                os.Close();
+                os.Dispose();
         }
 
         // methods

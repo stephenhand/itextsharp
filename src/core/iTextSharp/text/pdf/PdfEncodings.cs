@@ -136,7 +136,7 @@ public class PdfEncodings {
             return b;
         }
         IExtraEncoding extra;
-        extraEncodings.TryGetValue(encoding.ToLower(System.Globalization.CultureInfo.InvariantCulture), out extra);
+        extraEncodings.TryGetValue(encoding.ToLowerInvariant(), out extra);
         if (extra != null) {
             byte[] b = extra.CharToByte(text, encoding);
             if (b != null)
@@ -189,7 +189,7 @@ public class PdfEncodings {
         if (encoding == null || encoding.Length == 0)
             return new byte[]{(byte)char1};
         IExtraEncoding extra;
-        extraEncodings.TryGetValue(encoding.ToLower(System.Globalization.CultureInfo.InvariantCulture), out extra);
+        extraEncodings.TryGetValue(encoding.ToLowerInvariant(), out extra);
         if (extra != null) {
             byte[] b = extra.CharToByte(char1, encoding);
             if (b != null)
@@ -233,7 +233,7 @@ public class PdfEncodings {
             return new String(c);
         }
         IExtraEncoding extra;
-        extraEncodings.TryGetValue(encoding.ToLower(System.Globalization.CultureInfo.InvariantCulture), out extra);
+        extraEncodings.TryGetValue(encoding.ToLowerInvariant(), out extra);
         if (extra != null) {
             String text = extra.ByteToChar(bytes, encoding);
             if (text != null)
@@ -252,7 +252,7 @@ public class PdfEncodings {
             }
             return new String(c);
         }
-        String nameU = encoding.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+        String nameU = encoding.ToUpperInvariant();
         Encoding enc = null;
         if (nameU.Equals("UNICODEBIGUNMARKED"))
             enc = new UnicodeEncoding(true, false);
@@ -309,7 +309,7 @@ public class PdfEncodings {
     public static void AddExtraEncoding(String name, IExtraEncoding enc) {
         lock (extraEncodings) { // This serializes concurrent updates
             Dictionary<String, IExtraEncoding> newEncodings = new Dictionary<string,IExtraEncoding>(extraEncodings);
-            newEncodings[name.ToLower(System.Globalization.CultureInfo.InvariantCulture)] = enc;
+            newEncodings[name.ToLowerInvariant()] = enc;
             extraEncodings = newEncodings;  // This swap does not require synchronization with reader
         }
     }

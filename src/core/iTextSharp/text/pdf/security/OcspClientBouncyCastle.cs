@@ -10,6 +10,7 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Ocsp;
 using iTextSharp.text.error_messages;
 using iTextSharp.text.log;
+using iTextSharp.core.System.shims;
 
 /*
  * $Id: OcspClientBouncyCastle.cs 220 2010-12-22 13:38:35Z psoares33 $
@@ -186,13 +187,16 @@ namespace iTextSharp.text.pdf.security {
             Stream outp = con.GetRequestStream();
             outp.Write(array, 0, array.Length);
             outp.Close();
-            HttpWebResponse response = (HttpWebResponse)con.GetResponse();
+            OcspResp ocspResponse = null;
+            SynchronousWebRequest.GetResponse(con, delegate (WebResponse response) {
             if (response.StatusCode != HttpStatusCode.OK)
                 throw new IOException(MessageLocalization.GetComposedMessage("invalid.http.response.1", (int)response.StatusCode));
-            Stream inp = response.GetResponseStream();
-            OcspResp ocspResponse = new OcspResp(inp);
-            inp.Close();
-            response.Close();
+                using (Stream inp = response.GetResponseStream())
+                {
+                    ocspResponse = new OcspResp(inp);
+                }
+
+            });
             return ocspResponse;
         }
     }

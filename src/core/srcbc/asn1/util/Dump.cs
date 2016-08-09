@@ -22,7 +22,7 @@ namespace Org.BouncyCastle.Asn1.Utilities
                 Console.WriteLine(Asn1Dump.DumpAsString(obj));
             }
 
-			bIn.Close();
+			bIn.Dispose();
         }
     }
 }

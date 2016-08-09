@@ -61,15 +61,17 @@ namespace iTextSharp.text.io {
          */
         public static byte[] InputStreamToArray(Stream inp) {
             byte[] b = new byte[8192];
-            MemoryStream outp = new MemoryStream();
-            while (true) {
-                int read = inp.Read(b, 0, b.Length);
-                if (read < 1)
-                    break;
-                outp.Write(b, 0, read);
+            using (MemoryStream outp = new MemoryStream())
+            {
+                while (true)
+                {
+                    int read = inp.Read(b, 0, b.Length);
+                    if (read < 1)
+                        break;
+                    outp.Write(b, 0, read);
+                }
+                return outp.ToArray();
             }
-            outp.Close();
-            return outp.ToArray();
         }
         
         public static void CopyBytes(IRandomAccessSource source, long start, long length, Stream outs) {

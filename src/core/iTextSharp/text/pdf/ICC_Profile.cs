@@ -121,7 +121,7 @@ namespace iTextSharp.text.pdf
         public static ICC_Profile GetInstance(String fname) {
             FileStream fs = new FileStream(fname, FileMode.Open, FileAccess.Read, FileShare.Read);
             ICC_Profile icc = GetInstance(fs);
-            fs.Close();
+            fs.Dispose();
             return icc;
         }
 

@@ -622,21 +622,22 @@ namespace iTextSharp.text.pdf {
         
         internal static Dictionary<String, Object> ReadFontProperties(String name) {
             name += ".properties";
-            Stream isp = StreamUtil.GetResourceStream(RESOURCE_PATH_CMAP + name);
-            Properties p = new Properties();
-            p.Load(isp);
-            isp.Close();
-            IntHashtable W = CreateMetric(p["W"]);
-            p.Remove("W");
-            IntHashtable W2 = CreateMetric(p["W2"]);
-            p.Remove("W2");
-            Dictionary<String, Object> map = new Dictionary<string,object>();
-            foreach (string key in p.Keys) {
-                map[key] = p[key];
+            using (Stream isp = StreamUtil.GetResourceStream(RESOURCE_PATH_CMAP + name))
+            {
+                Properties p = new Properties();
+                p.Load(isp);
+                IntHashtable W = CreateMetric(p["W"]);
+                p.Remove("W");
+                IntHashtable W2 = CreateMetric(p["W2"]);
+                p.Remove("W2");
+                Dictionary<String, Object> map = new Dictionary<string,object>();
+                foreach (string key in p.Keys) {
+                    map[key] = p[key];
+                }
+                map["W"] = W;
+                map["W2"] = W2;
+                return map;
             }
-            map["W"] = W;
-            map["W2"] = W2;
-            return map;
         }
 
         public override int GetUnicodeEquivalent(int c) {

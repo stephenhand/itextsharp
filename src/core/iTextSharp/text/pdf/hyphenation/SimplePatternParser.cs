@@ -72,11 +72,8 @@ namespace iTextSharp.text.pdf.hyphenation {
         
         virtual public void Parse(Stream stream, IPatternConsumer consumer) {
             this.consumer = consumer;
-            try {
+            using (stream) {
                 SimpleXMLParser.Parse(this, stream);
-            }
-            finally {
-                try{stream.Close();}catch{}
             }
         }
         

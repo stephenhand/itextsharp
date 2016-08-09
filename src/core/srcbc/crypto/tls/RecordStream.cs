@@ -128,7 +128,7 @@ namespace Org.BouncyCastle.Crypto.Tls
 			IOException e = null;
 			try
 			{
-				inStr.Close();
+				inStr.Dispose();
 			}
 			catch (IOException ex)
 			{
@@ -138,7 +138,7 @@ namespace Org.BouncyCastle.Crypto.Tls
 			try
 			{
 				// NB: This is harmless if outStr == inStr
-				outStr.Close();
+				outStr.Dispose();
 			}
 			catch (IOException ex)
 			{

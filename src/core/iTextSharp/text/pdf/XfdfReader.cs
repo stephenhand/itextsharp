@@ -73,13 +73,9 @@ namespace iTextSharp.text.pdf {
         * @throws IOException on error
         */    
         public XfdfReader(String filename) {
-            FileStream fin = null;
-            try {
-                fin = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using (FileStream fin = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
                 SimpleXMLParser.Parse(this, fin);
-            }
-            finally {
-                try{if (fin != null) fin.Close();}catch{}
             }
         }
         

@@ -523,7 +523,7 @@ namespace iTextSharp.text.pdf.codec {
                         photometric == TIFFConstants.PHOTOMETRIC_MINISBLACK ? Image.CCITT_BLACKIS1 : 0, g4.Close());
                 }
                 else {
-                    zip.Close();
+                    zip.Dispose();
                     img = new ImgRaw(w, h, samplePerPixel - extraSamples, bitsPerSample, stream.ToArray());
                     img.Deflated = true;
                 }
@@ -585,7 +585,7 @@ namespace iTextSharp.text.pdf.codec {
             if (rotation != 0)
                 img.InitialRotation = rotation;
             if (extraSamples > 0) {
-                mzip.Close();
+                mzip.Dispose();
                 Image mimg = Image.GetInstance(w, h, 1, bitsPerSample, mstream.ToArray());
                 mimg.MakeMask();
                 mimg.Deflated = true;

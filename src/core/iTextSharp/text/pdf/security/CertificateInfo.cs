@@ -214,7 +214,7 @@ namespace iTextSharp.text.pdf.security {
                         throw new ArgumentException(MessageLocalization.GetComposedMessage("badly.formated.directory.string"));
                     }
                     
-                    String id = token.Substring(0, index).ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+                    String id = token.Substring(0, index).ToUpperInvariant();
                     String value = token.Substring(index + 1);
                     List<string> vs;
                     if (!values.TryGetValue(id, out vs)) {

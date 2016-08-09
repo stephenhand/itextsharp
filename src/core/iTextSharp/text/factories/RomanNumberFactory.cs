@@ -156,7 +156,7 @@ namespace iTextSharp.text.factories {
         * @return the roman number (lower case)
         */
         public static String GetUpperCaseString(int index) {
-            return GetString(index).ToUpper(System.Globalization.CultureInfo.InvariantCulture);      
+            return GetString(index).ToUpperInvariant();      
         }
 
         /** 

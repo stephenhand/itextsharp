@@ -79,7 +79,7 @@ namespace iTextSharp.text.factories {
         * @return the letter combination
         */
         public static String GetUpperCaseString(int index) {
-            return GetString(index).ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+            return GetString(index).ToUpperInvariant();
         }
 
         /** 

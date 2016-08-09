@@ -76,16 +76,18 @@ namespace iTextSharp.text.pdf.parser {
          */
         public virtual void ConvertToXml(PdfReader reader, Stream os, Encoding encoding) {
             this.reader = reader;
-            outp = new StreamWriter(os, encoding);
-            // get the StructTreeRoot from the root obj
-            PdfDictionary catalog = reader.Catalog;
-            PdfDictionary struc = catalog.GetAsDict(PdfName.STRUCTTREEROOT);
-            if (struc == null)
-                throw new IOException(MessageLocalization.GetComposedMessage("no.structtreeroot.found"));
-            // Inspect the child or children of the StructTreeRoot
-            InspectChild(struc.GetDirectObject(PdfName.K));
-            outp.Flush();
-            outp.Close();
+            using (outp = new StreamWriter(os, encoding))
+            {
+                // get the StructTreeRoot from the root obj
+                PdfDictionary catalog = reader.Catalog;
+                PdfDictionary struc = catalog.GetAsDict(PdfName.STRUCTTREEROOT);
+                if (struc == null)
+                    throw new IOException(MessageLocalization.GetComposedMessage("no.structtreeroot.found"));
+                // Inspect the child or children of the StructTreeRoot
+                InspectChild(struc.GetDirectObject(PdfName.K));
+                outp.Flush();
+
+            }
         }
 
         /**

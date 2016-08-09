@@ -382,7 +382,7 @@ namespace iTextSharp.text.pdf {
                 trailer.ToPdf(null, os);
                 b = GetISOBytes("\n%%EOF\n");
                 os.Write(b, 0, b.Length);
-                os.Close();
+                os.Dispose();
             }
             
             

@@ -10,6 +10,7 @@ using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.codec;
 using iTextSharp.text.pdf.interfaces;
 using iTextSharp.text.io;
+using iTextSharp.core.System.shims;
 
 /*
  * $Id$
@@ -370,102 +371,120 @@ namespace iTextSharp.text {
         /// <param name="url">an URL</param>
         /// <returns>an object of type Gif, Jpeg or Png</returns>
         public static Image GetInstance(Uri url, bool recoverFromImageError) {
-            Stream istr = null;
-            RandomAccessSourceFactory randomAccessSourceFactory = new RandomAccessSourceFactory();
-            try {
-                WebRequest w = WebRequest.Create(url);
-                w.Credentials = CredentialCache.DefaultCredentials;
-                istr = w.GetResponse().GetResponseStream();
-                int c1 = istr.ReadByte();
-                int c2 = istr.ReadByte();
-                int c3 = istr.ReadByte();
-                int c4 = istr.ReadByte();
-			    // jbig2
-			    int c5 = istr.ReadByte();
-			    int c6 = istr.ReadByte();
-			    int c7 = istr.ReadByte();
-			    int c8 = istr.ReadByte();
-                istr.Close();
+            Image img = null;
+        RandomAccessSourceFactory randomAccessSourceFactory = new RandomAccessSourceFactory();
+            WebRequest w = WebRequest.Create(url);
+            w.Credentials = CredentialCache.DefaultCredentials;
+            SynchronousWebRequest.GetResponse(w, delegate (WebResponse resp)
+            {
 
-                istr = null;
-                if (c1 == 'G' && c2 == 'I' && c3 == 'F') {
-                    GifImage gif = new GifImage(url);
-                    Image img = gif.GetImage(1);
-                    return img;
-                }
-                if (c1 == 0xFF && c2 == 0xD8) {
-                    return new Jpeg(url);
-                }
-			    if (c1 == 0x00 && c2 == 0x00 && c3 == 0x00 && c4 == 0x0c) {
-				    return new Jpeg2000(url);
-			    }
-			    if (c1 == 0xff && c2 == 0x4f && c3 == 0xff && c4 == 0x51) {
-				    return new Jpeg2000(url);
-			    }
-                if (c1 == PngImage.PNGID[0] && c2 == PngImage.PNGID[1]
-                        && c3 == PngImage.PNGID[2] && c4 == PngImage.PNGID[3]) {
-                    Image img = PngImage.GetImage(url);
-                    return img;
-                }
-                if (c1 == 0xD7 && c2 == 0xCD) {
-                    Image img = new ImgWMF(url);
-                    return img;
-                }
-                if (c1 == 'B' && c2 == 'M') {
-                    Image img = BmpImage.GetImage(url);
-                    return img;
-                }
-                if ((c1 == 'M' && c2 == 'M' && c3 == 0 && c4 == 42)
-                        || (c1 == 'I' && c2 == 'I' && c3 == 42 && c4 == 0)) {
-                    RandomAccessFileOrArray ra = null;
-                    try {
-                        if (url.IsFile) {
-                            String file = url.LocalPath;
-                            ra = new RandomAccessFileOrArray(randomAccessSourceFactory.CreateBestSource(file));
-                        } else
-                            ra = new RandomAccessFileOrArray(randomAccessSourceFactory.CreateSource(url));
-                        Image img = TiffImage.GetTiffImage(ra, 1);
-                        img.url = url;
-                        return img;
-                    } catch (Exception e) {
-                        if (recoverFromImageError) {
-                            // reruns the getTiffImage() with several error recovering workarounds in place
-                            // not guaranteed to work with every TIFF
-                            Image img = TiffImage.GetTiffImage(ra, recoverFromImageError, 1);
+                using (Stream istr = resp.GetResponseStream())
+                {
+                    int c1 = istr.ReadByte();
+                    int c2 = istr.ReadByte();
+                    int c3 = istr.ReadByte();
+                    int c4 = istr.ReadByte();
+			        // jbig2
+			        int c5 = istr.ReadByte();
+			        int c6 = istr.ReadByte();
+			        int c7 = istr.ReadByte();
+			        int c8 = istr.ReadByte();
+                    if (c1 == 'G' && c2 == 'I' && c3 == 'F')
+                    {
+                        GifImage gif = new GifImage(url);
+                        img = gif.GetImage(1);
+                    }
+                    if (c1 == 0xFF && c2 == 0xD8)
+                    {
+                        img = new Jpeg(url);
+                    }
+                    if (c1 == 0x00 && c2 == 0x00 && c3 == 0x00 && c4 == 0x0c)
+                    {
+                        img = new Jpeg2000(url);
+                    }
+                    if (c1 == 0xff && c2 == 0x4f && c3 == 0xff && c4 == 0x51)
+                    {
+                        img = new Jpeg2000(url);
+                    }
+                    if (c1 == PngImage.PNGID[0] && c2 == PngImage.PNGID[1]
+                            && c3 == PngImage.PNGID[2] && c4 == PngImage.PNGID[3])
+                    {
+                        img = PngImage.GetImage(url);
+                    }
+                    if (c1 == 0xD7 && c2 == 0xCD)
+                    {
+                        img = new ImgWMF(url);
+                    }
+                    if (c1 == 'B' && c2 == 'M')
+                    {
+                        img = BmpImage.GetImage(url);
+                    }
+                    if ((c1 == 'M' && c2 == 'M' && c3 == 0 && c4 == 42)
+                            || (c1 == 'I' && c2 == 'I' && c3 == 42 && c4 == 0))
+                    {
+                        RandomAccessFileOrArray ra = null;
+                        try
+                        {
+                            if (url.IsFile)
+                            {
+                                String file = url.LocalPath;
+                                ra = new RandomAccessFileOrArray(randomAccessSourceFactory.CreateBestSource(file));
+                            }
+                            else
+                                ra = new RandomAccessFileOrArray(randomAccessSourceFactory.CreateSource(url));
+                            img = TiffImage.GetTiffImage(ra, 1);
                             img.url = url;
-                            return img;
                         }
-                        throw e;
+                        catch (Exception e)
+                        {
+                            if (recoverFromImageError)
+                            {
+                                // reruns the getTiffImage() with several error recovering workarounds in place
+                                // not guaranteed to work with every TIFF
+                                img = TiffImage.GetTiffImage(ra, recoverFromImageError, 1);
+                                img.url = url;
+                            }
+                            throw e;
+                        }
+                        finally
+                        {
+                            if (ra != null)
+                                ra.Close();
+                        }
+
                     }
-                    finally {
-                        if (ra != null)
-                            ra.Close();
+                    if (c1 == 0x97 && c2 == 'J' && c3 == 'B' && c4 == '2' &&
+                            c5 == '\r' && c6 == '\n' && c7 == 0x1a && c8 == '\n')
+                    {
+                        RandomAccessFileOrArray ra = null;
+                        try
+                        {
+                            if (url.IsFile)
+                            {
+                                String file = url.LocalPath;
+                                ra = new RandomAccessFileOrArray(randomAccessSourceFactory.CreateBestSource(file));
+                            }
+                            else
+                                ra = new RandomAccessFileOrArray(randomAccessSourceFactory.CreateSource(url));
+                            img = JBIG2Image.GetJbig2Image(ra, 1);
+                            img.url = url;
+                        }
+                        finally
+                        {
+                            if (ra != null)
+                                ra.Close();
+                        }
                     }
 
                 }
-                if ( c1 == 0x97 && c2 == 'J' && c3 == 'B' && c4 == '2' &&
-                        c5 == '\r' && c6 == '\n' && c7 == 0x1a && c8 == '\n' ) {
-                    RandomAccessFileOrArray ra = null;
-                    try {
-                        if (url.IsFile) {
-                            String file = url.LocalPath;
-                            ra = new RandomAccessFileOrArray(randomAccessSourceFactory.CreateBestSource(file));
-                        } else
-                            ra = new RandomAccessFileOrArray(randomAccessSourceFactory.CreateSource(url));
-                        Image img = JBIG2Image.GetJbig2Image(ra, 1);
-                        img.url = url;
-                        return img;
-                    } finally {
-                        if (ra != null)
-                            ra.Close();
-                    }
-                }
+            });
+            
+            if (img == null)
+            {
                 throw new IOException(MessageLocalization.GetComposedMessage("unknown.image.format", url.ToString()));
-            } finally {
-                if (istr != null) {
-                    istr.Close();
-                }
+
             }
+            return img;
         }
 
         public static Image GetInstance(Stream s) {

@@ -98,7 +98,7 @@ namespace iTextSharp.text.factories {
         * 1 = A, 2 = B, ..., 26 = Z, 27 = AA, 28 = AB,...
         */
         public static String GetUpperCaseString(int index) {
-            return GetString(index).ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+            return GetString(index).ToUpperInvariant();
         }
 
         

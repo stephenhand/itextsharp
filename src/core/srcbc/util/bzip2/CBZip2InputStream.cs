@@ -286,7 +286,7 @@ namespace Org.BouncyCastle.Apache.Bzip2
         private void BsFinishedWithStream() {
             try {
                 if (this.bsStream != null) {
-                    this.bsStream.Close();
+                    this.bsStream.Dispose();
                     this.bsStream = null;
                 }
             } catch {

@@ -73,7 +73,7 @@ namespace iTextSharp.text.pdf {
                         break;
                     outp.Write(buf, 0, size);
                 }
-                istr.Close();
+                istr.Dispose();
                 istr = null;
                 String s = PdfEncodings.ConvertToString(outp.ToArray(), null);
                 StringTokenizer tk = new StringTokenizer(s, "\r\n");
@@ -101,7 +101,7 @@ namespace iTextSharp.text.pdf {
             finally {
                 if (istr != null) {
                     try {
-                        istr.Close();
+                        istr.Dispose();
                     }
                     catch {
                         // empty on purpose

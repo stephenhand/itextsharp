@@ -241,7 +241,7 @@ namespace iTextSharp.text {
         * (for instance "A4", "LETTER",...) or a value like "595 842"
         */
         public static Rectangle GetRectangle(String name)  {
-            name = name.Trim().ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+            name = name.Trim().ToUpperInvariant();
             int pos = name.IndexOf(' ');
             if (pos == -1) {
                 try {            

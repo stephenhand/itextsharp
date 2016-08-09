@@ -578,7 +578,7 @@ namespace iTextSharp.text.pdf {
                 }
                 String style = GetVal(map, "Style");
                 if (style != null) {
-                    style = style.ToLower(System.Globalization.CultureInfo.InvariantCulture);
+                    style = style.ToLowerInvariant();
                     int bits = 0;
                     if (style.IndexOf("italic") >= 0)
                         bits |= 1;

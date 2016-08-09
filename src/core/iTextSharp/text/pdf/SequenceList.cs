@@ -116,7 +116,7 @@ namespace iTextSharp.text.pdf {
                             return NUMBER;
                         }
                         else if (state == OTHER) {
-                            other = buf.ToString().ToLower(System.Globalization.CultureInfo.InvariantCulture);
+                            other = buf.ToString().ToLowerInvariant();
                             return TEXT;
                         }
                         return END;
@@ -151,7 +151,7 @@ namespace iTextSharp.text.pdf {
                                 buf.Append(c);
                             else {
                                 PutBack();
-                                other = buf.ToString().ToLower(System.Globalization.CultureInfo.InvariantCulture);
+                                other = buf.ToString().ToLowerInvariant();
                                 return TEXT;
                             }
                             break;

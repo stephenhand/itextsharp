@@ -389,7 +389,7 @@ namespace iTextSharp.text.pdf {
             ttcIndex = "";
             if (ttcName.Length < nameBase.Length)
                 ttcIndex = nameBase.Substring(ttcName.Length + 1);
-            if (fileName.ToLower(System.Globalization.CultureInfo.InvariantCulture).EndsWith(".ttf") || fileName.ToLower(System.Globalization.CultureInfo.InvariantCulture).EndsWith(".otf") || fileName.ToLower(System.Globalization.CultureInfo.InvariantCulture).EndsWith(".ttc")) {
+            if (fileName.ToLowerInvariant().EndsWith(".ttf") || fileName.ToLowerInvariant().EndsWith(".otf") || fileName.ToLowerInvariant().EndsWith(".ttc")) {
                 Process(ttfAfm, forceRead);
                 if (!justNames && embedded && os_2.fsType == 2)
                     throw new DocumentException(MessageLocalization.GetComposedMessage("1.cannot.be.embedded.due.to.licensing.restrictions", fileName + style));
@@ -408,7 +408,7 @@ namespace iTextSharp.text.pdf {
          * @return the simple file name
          */    
         protected static string GetTTCName(string name) {
-            int idx = name.ToLower(System.Globalization.CultureInfo.InvariantCulture).IndexOf(".ttc,");
+            int idx = name.ToLowerInvariant().IndexOf(".ttc,");
             if (idx < 0)
                 return name;
             else

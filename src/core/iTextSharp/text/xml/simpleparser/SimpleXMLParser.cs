@@ -536,7 +536,7 @@ namespace iTextSharp.text.xml.simpleparser {
             case ATTRIBUTE_KEY:
                 attributekey = text.ToString();
                 if (html)
-                    attributekey = attributekey.ToLower(CultureInfo.InvariantCulture);
+                    attributekey = attributekey.ToLowerInvariant();
                 break;
             case QUOTE:
             case ATTRIBUTE_VALUE:
@@ -561,7 +561,7 @@ namespace iTextSharp.text.xml.simpleparser {
             if (tag == null)
                 tag = text.ToString();
             if (html)
-                tag = tag.ToLower(CultureInfo.InvariantCulture);
+                tag = tag.ToLowerInvariant();
             text.Length = 0;
         }
         /**

@@ -50,6 +50,7 @@ using System.Net;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
 using iTextSharp.text.log;
+using iTextSharp.core.System.shims;
 
 /**
  * Class that allows you to verify a certificate against
@@ -151,8 +152,13 @@ namespace iTextSharp.text.pdf.security {
 			    LOGGER.Info("Getting CRL from " + crlurl);
 
                 X509CrlParser crlParser = new X509CrlParser();
-			    // Creates the CRL
-		        Stream url = WebRequest.Create(crlurl).GetResponse().GetResponseStream();
+                Stream url = null;
+                // Creates the CRL
+                WebRequest.Create(crlurl);
+                SynchronousWebRequest.GetResponse(WebRequest.Create(crlurl), delegate (WebResponse resp)
+                {
+                    url = resp.GetResponseStream();
+                });
 			    return crlParser.ReadCrl(url);
 		    }
 		    catch (IOException) {

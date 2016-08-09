@@ -116,7 +116,7 @@ namespace iTextSharp.text.pdf
         * @return the bars
         */    
         public static byte[] GetBarsCodabar(String text) {
-            text = text.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+            text = text.ToUpperInvariant();
             int len = text.Length;
             if (len < 2)
                 throw new ArgumentException(MessageLocalization.GetComposedMessage("codabar.must.have.at.least.a.start.and.stop.character"));
@@ -137,7 +137,7 @@ namespace iTextSharp.text.pdf
         public static String CalculateChecksum(String code) {
             if (code.Length < 2)
                 return code;
-            String text = code.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+            String text = code.ToUpperInvariant();
             int sum = 0;
             int len = text.Length;
             for (int k = 0; k < len; ++k)

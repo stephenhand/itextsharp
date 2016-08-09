@@ -176,8 +176,7 @@ namespace iTextSharp.text.pdf {
                 embedded = false;
                 builtinFont = true;
                 byte[] buf = new byte[1024];
-                try {
-                    istr = StreamUtil.GetResourceStream(RESOURCE_PATH + afmFile + ".afm");
+                using (istr = StreamUtil.GetResourceStream(RESOURCE_PATH + afmFile + ".afm")) {
                     if (istr == null) {
                         string msg = MessageLocalization.GetComposedMessage("1.not.found.as.resource", afmFile);
                         Console.Error.WriteLine(msg);
@@ -191,16 +190,6 @@ namespace iTextSharp.text.pdf {
                         ostr.Write(buf, 0, size);
                     }
                     buf = ostr.ToArray();
-                }
-                finally {
-                    if (istr != null) {
-                        try {
-                            istr.Close();
-                        }
-                        catch {
-                            // empty on purpose
-                        }
-                    }
                 }
                 try {
                     rf = new RandomAccessFileOrArray(buf);
@@ -217,7 +206,7 @@ namespace iTextSharp.text.pdf {
                     }
                 }
             }
-            else if (afmFile.ToLower(System.Globalization.CultureInfo.InvariantCulture).EndsWith(".afm")) {
+            else if (afmFile.ToLowerInvariant().EndsWith(".afm")) {
                 try {
                     if (ttfAfm == null)
                         rf = new RandomAccessFileOrArray(afmFile, forceRead);
@@ -236,7 +225,7 @@ namespace iTextSharp.text.pdf {
                     }
                 }
             }
-            else if (afmFile.ToLower(System.Globalization.CultureInfo.InvariantCulture).EndsWith(".pfm")) {
+            else if (afmFile.ToLowerInvariant().EndsWith(".pfm")) {
                 try {
                     MemoryStream ba = new MemoryStream();
                     if (ttfAfm == null)

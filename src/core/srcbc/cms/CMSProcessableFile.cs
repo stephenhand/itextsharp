@@ -39,9 +39,8 @@ namespace Org.BouncyCastle.Cms
 		public virtual void Write(
 			Stream zOut)
 		{
-			Stream inStr = GetInputStream();
-			Streams.PipeAll(inStr, zOut);
-			inStr.Close();
+            using (Stream inStr = GetInputStream())
+                Streams.PipeAll(inStr, zOut);
 		}
 
 		/// <returns>The file handle</returns>
