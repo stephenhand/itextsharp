@@ -86,18 +86,19 @@ namespace iTextSharp.text.pdf.codec {
 
         virtual public void WriteData(byte[] data, int stride) {
             MemoryStream stream = new MemoryStream();
-            ZDeflaterOutputStream zip = new ZDeflaterOutputStream(stream, 5);
-            int k;
-            for (k = 0; k < data.Length - stride; k += stride) {
-                zip.WriteByte(0);
-                zip.Write(data, k, stride);
+            using (ZDeflaterOutputStream zip = new ZDeflaterOutputStream(stream, 5))
+            {
+                int k;
+                for (k = 0; k < data.Length - stride; k += stride) {
+                    zip.WriteByte(0);
+                    zip.Write(data, k, stride);
+                }
+                int remaining = data.Length - k;
+                if (remaining > 0){
+                    zip.WriteByte(0);
+                    zip.Write(data, k, remaining);
+                }
             }
-            int remaining = data.Length - k;
-            if (remaining > 0){
-                zip.WriteByte(0);
-                zip.Write(data, k, remaining);
-            }
-            zip.Close();
             WriteChunk(IDAT, stream.ToArray());
         }
 
@@ -106,16 +107,18 @@ namespace iTextSharp.text.pdf.codec {
         }
 
         virtual public void WriteIccProfile(byte[] data) {
-            MemoryStream stream = new MemoryStream();
-            stream.WriteByte((byte)'I');
-            stream.WriteByte((byte)'C');
-            stream.WriteByte((byte)'C');
-            stream.WriteByte(0);
-            stream.WriteByte(0);
-            ZDeflaterOutputStream zip = new ZDeflaterOutputStream(stream, 5);
-            zip.Write(data, 0, data.Length);
-            zip.Close();
-            WriteChunk(iCCP, stream.ToArray());
+            using (MemoryStream stream = new MemoryStream())
+            {
+                stream.WriteByte((byte)'I');
+                stream.WriteByte((byte)'C');
+                stream.WriteByte((byte)'C');
+                stream.WriteByte(0);
+                stream.WriteByte(0);
+                ZDeflaterOutputStream zip = new ZDeflaterOutputStream(stream, 5);
+                zip.Write(data, 0, data.Length);
+                WriteChunk(iCCP, stream.ToArray());
+
+            }
         }
 
         private static void make_crc_table() {

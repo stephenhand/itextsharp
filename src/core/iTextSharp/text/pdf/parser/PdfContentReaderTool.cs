@@ -222,7 +222,7 @@ namespace iTextSharp.text.pdf.parser {
                 if (args.Length >= 2){
                     if (!Util.EqualsIgnoreCase(args[1], "stdout")) {
                         Console.Out.WriteLine("Writing PDF content to " + args[1]);
-                        writer = new StreamWriter(args[1]);
+                        writer = new StreamWriter(File.OpenWrite(args[1]));
                     }
                 }
 

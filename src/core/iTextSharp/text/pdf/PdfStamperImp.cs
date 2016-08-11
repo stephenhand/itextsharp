@@ -443,7 +443,7 @@ namespace iTextSharp.text.pdf {
             }
             os.Flush();
             if (CloseStream)
-                os.Close();
+                os.Dispose();
             GetCounter().Written(os.Counter);
         }
 

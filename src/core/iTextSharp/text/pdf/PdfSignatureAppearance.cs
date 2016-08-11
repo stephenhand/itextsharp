@@ -1305,7 +1305,7 @@ namespace iTextSharp.text.pdf {
                     raf.Write(bf.Buffer, 0, bf.Size);
                 }
                 catch (IOException e) {
-                    try{raf.Close();}catch{}
+                    try{raf.Dispose();}catch{}
                     try{File.Delete(tempFile);}catch{}
                     throw e;
                 }
@@ -1425,12 +1425,12 @@ namespace iTextSharp.text.pdf {
             finally {
                 writer.reader.Close();
                 if (tempFile != null) {
-                    try{raf.Close();}catch{}
+                    try{raf.Dispose();}catch{}
                     if (originalout != null)
                         try{File.Delete(tempFile);}catch{}
                 }
                 if (originalout != null)
-                    try{originalout.Close();}catch{}
+                    try{originalout.Dispose();}catch{}
             }
         }
     }

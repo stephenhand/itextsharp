@@ -5,6 +5,7 @@ using iTextSharp.text.io;
 using iTextSharp.text.pdf.collection;
 using iTextSharp.text.error_messages;
 using iTextSharp.text.pdf.intern;
+using iTextSharp.core.System.shims;
 
 /*
  * This file is part of the iText project.
@@ -166,67 +167,79 @@ namespace iTextSharp.text.pdf {
             fs.writer = writer;
             fs.Put(PdfName.F, new PdfString(fileDisplay));
             fs.SetUnicodeFileName(fileDisplay, false);
-            PdfEFStream stream;
-            Stream inp = null;
-            PdfIndirectReference refi;
+            PdfIndirectReference refi=null;
             PdfIndirectReference refFileLength = null;
-            try {
-                if (fileStore == null) {
-                    refFileLength = writer.PdfIndirectReference;
-                    if (File.Exists(filePath)) {
-                        inp = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            if (fileStore == null) {
+                refFileLength = writer.PdfIndirectReference;
+                if (File.Exists(filePath)) {
+                    using (Stream inp = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
+                        WriteFileEmbeddedStream(new PdfEFStream(inp, writer), writer, fileStore, mimeType, fileParameter, compressionLevel, refFileLength, out refi);
                     }
-                    else {
-                        if (filePath.StartsWith("file:/") || filePath.StartsWith("http://") || filePath.StartsWith("https://")) {
-                            WebRequest wr = WebRequest.Create(filePath);
-                            wr.Credentials = CredentialCache.DefaultCredentials;
-                            inp = wr.GetResponse().GetResponseStream();
-                        }
-                        else {
-                            inp = StreamUtil.GetResourceStream(filePath);
+                }
+                else {
+                    if (filePath.StartsWith("file:/") || filePath.StartsWith("http://") || filePath.StartsWith("https://")) {
+                        WebRequest wr = WebRequest.Create(filePath);
+                        wr.Credentials = CredentialCache.DefaultCredentials;
+                        SynchronousWebRequest.GetResponse(wr, delegate (WebResponse resp) {
+
+                            using (Stream inp = resp.GetResponseStream())
+                            {
+                                WriteFileEmbeddedStream(new PdfEFStream(inp, writer), writer, fileStore, mimeType, fileParameter, compressionLevel, refFileLength, out refi);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        using (Stream inp = StreamUtil.GetResourceStream(filePath))
+                        {
                             if (inp == null)
                                 throw new IOException(MessageLocalization.GetComposedMessage("1.not.found.as.file.or.resource", filePath));
-                        }
+
+                            WriteFileEmbeddedStream(new PdfEFStream(inp, writer), writer, fileStore, mimeType, fileParameter, compressionLevel, refFileLength, out refi);
+                        };
                     }
-                    stream = new PdfEFStream(inp, writer);
-                }
-                else
-                    stream = new PdfEFStream(fileStore);
-                stream.Put(PdfName.TYPE, PdfName.EMBEDDEDFILE);
-                stream.FlateCompress(compressionLevel);
-
-                PdfDictionary param = new PdfDictionary();
-                if (fileParameter != null)
-                    param.Merge(fileParameter);
-                if (!param.Contains(PdfName.MODDATE)) {
-                    param.Put(PdfName.MODDATE, new PdfDate());
-                }
-                if (fileStore == null) {
-                    stream.Put(PdfName.PARAMS, refFileLength);
-                } else {
-                    param.Put(PdfName.SIZE, new PdfNumber(stream.RawLength));
-                    stream.Put(PdfName.PARAMS, param);
-                }
-
-                if (mimeType != null)
-                    stream.Put(PdfName.SUBTYPE, new PdfName(mimeType));
-
-                refi = writer.AddToBody(stream).IndirectReference;
-                if (fileStore == null) {
-                    stream.WriteLength();
-                    param.Put(PdfName.SIZE, new PdfNumber(stream.RawLength));
-                    writer.AddToBody(param, refFileLength);
                 }
             }
-            finally {
-                if (inp != null)
-                    try{inp.Close();}catch{}
-            }
+            else
+                WriteFileEmbeddedStream(new PdfEFStream(fileStore), writer, fileStore, mimeType, fileParameter, compressionLevel, refFileLength, out refi);
             PdfDictionary f = new PdfDictionary();
             f.Put(PdfName.F, refi);
             f.Put(PdfName.UF, refi);
             fs.Put(PdfName.EF, f);
             return fs;
+        }
+
+        private static void WriteFileEmbeddedStream(PdfEFStream stream, PdfWriter writer, byte[] fileStore, String mimeType, PdfDictionary fileParameter, int compressionLevel, PdfIndirectReference refFileLength, out PdfIndirectReference refi) {
+            stream.Put(PdfName.TYPE, PdfName.EMBEDDEDFILE);
+            stream.FlateCompress(compressionLevel);
+
+            PdfDictionary param = new PdfDictionary();
+            if (fileParameter != null)
+                param.Merge(fileParameter);
+            if (!param.Contains(PdfName.MODDATE))
+            {
+                param.Put(PdfName.MODDATE, new PdfDate());
+            }
+            if (fileStore == null)
+            {
+                stream.Put(PdfName.PARAMS, refFileLength);
+            }
+            else
+            {
+                param.Put(PdfName.SIZE, new PdfNumber(stream.RawLength));
+                stream.Put(PdfName.PARAMS, param);
+            }
+
+            if (mimeType != null)
+                stream.Put(PdfName.SUBTYPE, new PdfName(mimeType));
+
+            refi = writer.AddToBody(stream).IndirectReference;
+            if (fileStore == null)
+            {
+                stream.WriteLength();
+                param.Put(PdfName.SIZE, new PdfNumber(stream.RawLength));
+                writer.AddToBody(param, refFileLength);
+            }
         }
         
         /**

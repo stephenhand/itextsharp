@@ -323,17 +323,18 @@ namespace Org.BouncyCastle.Bcpg.OpenPgp
 
 		private static void PipeFileContents(FileInfo file, Stream pOut, int bufSize)
 		{
-			FileStream inputStream = file.OpenRead();
-			byte[] buf = new byte[bufSize];
+            using (FileStream inputStream = file.OpenRead()) {
+                using (pOut)
+                {
+                    byte[] buf = new byte[bufSize];
 
-			int len;
-            while ((len = inputStream.Read(buf, 0, buf.Length)) > 0)
-            {
-                pOut.Write(buf, 0, len);
+			        int len;
+                    while ((len = inputStream.Read(buf, 0, buf.Length)) > 0)
+                    {
+                        pOut.Write(buf, 0, len);
+                    }
+                }
             }
-
-			pOut.Close();
-			inputStream.Close();
 		}
 
 		private const int ReadAhead = 60;

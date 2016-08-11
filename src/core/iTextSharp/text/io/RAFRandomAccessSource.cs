@@ -115,7 +115,7 @@ namespace iTextSharp.text.io {
 	     * Closes the underlying RandomAccessFile
 	     */
 	    public virtual void Close() {
-		    raf.Close();
+		    raf.Dispose();
 	    }
 
         virtual public void Dispose() {

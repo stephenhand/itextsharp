@@ -392,21 +392,24 @@ namespace Org.BouncyCastle.Pkix
             else if (Platform.CompareIgnoreCase(encoding, "PEM") == 0)
 			{
 				MemoryStream bOut = new MemoryStream();
-				PemWriter pWrt = new PemWriter(new StreamWriter(bOut));
+                using (StreamWriter sw = new StreamWriter(bOut))
+                {
+                    PemWriter pWrt = new PemWriter(sw);
+         
+				    try
+				    {
+					    for (int i = 0; i != certificates.Count; i++)
+					    {
+						    pWrt.WriteObject(certificates[i]);
+					    }
+				    }
+				    catch (Exception)
+				    {
+					    throw new CertificateEncodingException("can't encode certificate for PEM encoded path");
+				    }
 
-				try
-				{
-					for (int i = 0; i != certificates.Count; i++)
-					{
-						pWrt.WriteObject(certificates[i]);
-					}
+                }
 
-					pWrt.Writer.Close();
-				}
-				catch (Exception)
-				{
-					throw new CertificateEncodingException("can't encode certificate for PEM encoded path");
-				}
 
 				return bOut.ToArray();
 			}

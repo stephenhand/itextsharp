@@ -1,5 +1,6 @@
 using System;
 using iTextSharp.xmp.impl;
+using iTextSharp.xmp.timezone;
 
 //Copyright (c) 2006, Adobe Systems Incorporated
 //All rights reserved.
@@ -127,7 +128,7 @@ namespace iTextSharp.xmp {
         /// <returns> Returns an updated <code>XMPDateTime</code>-object. </returns>
         public static IXmpDateTime SetLocalTimeZone(IXmpDateTime dateTime) {
             XmpCalendar cal = dateTime.Calendar;
-            cal.TimeZone = TimeZone.CurrentTimeZone;
+            cal.TimeZone = CompatibleTimeZone.CurrentLocal;
             return new XmpDateTimeImpl(cal);
         }
 

@@ -596,10 +596,11 @@ namespace iTextSharp.text.pdf.security {
             else
                 digest = sig.GenerateSignature();
             MemoryStream bOut = new MemoryStream();
-            
-            Asn1OutputStream dout = new Asn1OutputStream(bOut);
-            dout.WriteObject(new DerOctetString(digest));
-            dout.Close();
+
+            using (Asn1OutputStream dout = new Asn1OutputStream(bOut))
+            {
+                dout.WriteObject(new DerOctetString(digest));
+            }
             
             return bOut.ToArray();
         }
@@ -743,10 +744,11 @@ namespace iTextSharp.text.pdf.security {
             whole.Add(new DerTaggedObject(0, new DerSequence(body)));
             
             MemoryStream bOut = new MemoryStream();
-            
-            Asn1OutputStream dout = new Asn1OutputStream(bOut);
-            dout.WriteObject(new DerSequence(whole));
-            dout.Close();
+
+            using (Asn1OutputStream dout = new Asn1OutputStream(bOut))
+            {
+                dout.WriteObject(new DerSequence(whole));
+            }
             
             return bOut.ToArray();
         }

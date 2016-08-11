@@ -1976,22 +1976,24 @@ namespace iTextSharp.text.pdf {
         */    
         public static byte[] FlateDecode(byte[] inp, bool strict) {
             MemoryStream stream = new MemoryStream(inp);
-            ZInflaterInputStream zip = new ZInflaterInputStream(stream);
-            MemoryStream outp = new MemoryStream();
-            byte[] b = new byte[strict ? 4092 : 1];
-            try {
-                int n;
-                while ((n = zip.Read(b, 0, b.Length)) > 0) {
-                    outp.Write(b, 0, n);
+            using (MemoryStream outp = new MemoryStream())
+            {
+                using (Stream zip = new ZInflaterInputStream(stream))
+                {
+                    byte[] b = new byte[strict ? 4092 : 1];
+                    try {
+                        int n;
+                        while ((n = zip.Read(b, 0, b.Length)) > 0) {
+                            outp.Write(b, 0, n);
+                        }
+                        return outp.ToArray();
+                    }
+                    catch {
+                        if (strict)
+                            return null;
+                        return outp.ToArray();
+                    }
                 }
-                zip.Close();
-                outp.Close();
-                return outp.ToArray();
-            }
-            catch {
-                if (strict)
-                    return null;
-                return outp.ToArray();
             }
         }
         
