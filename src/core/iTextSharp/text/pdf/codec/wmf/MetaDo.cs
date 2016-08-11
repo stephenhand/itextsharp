@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Collections.Generic;
 using iTextSharp.text.error_messages;
+using iTextSharp.core.System.shims;
 
 /*
  * $Id$
@@ -673,80 +674,85 @@ namespace iTextSharp.text.pdf.codec.wmf
     public static byte[] WrapBMP(Image image)  {
         if (image.OriginalType != Image.ORIGINAL_BMP)
             throw new IOException(MessageLocalization.GetComposedMessage("only.bmp.can.be.wrapped.in.wmf"));
-        Stream imgIn;
         byte[] data = null;
         if (image.OriginalData == null) {
             WebRequest wr = WebRequest.Create(image.Url);
             wr.Credentials = CredentialCache.DefaultCredentials;
-            imgIn = wr.GetResponse().GetResponseStream();
-            MemoryStream outp = new MemoryStream();
-            int b = 0;
-            while ((b = imgIn.ReadByte()) != -1)
-                outp.WriteByte((byte)b);
-            imgIn.Close();
-            data = outp.ToArray();
+            SynchronousWebRequest.GetResponse(wr, delegate (WebResponse resp) {
+                using (Stream imgIn = resp.GetResponseStream(), outp = new MemoryStream()) {
+                    int b = 0;
+                    while ((b = imgIn.ReadByte()) != -1)
+                    {
+                        outp.WriteByte((byte)b);
+
+                    }
+                    data = ((MemoryStream)outp).ToArray();
+                }
+            });
         }
         else
             data = image.OriginalData;
         int sizeBmpWords = (data.Length - 14 + 1) >> 1;
-        MemoryStream os = new MemoryStream();
-        // write metafile header
-        WriteWord(os, 1);
-        WriteWord(os, 9);
-        WriteWord(os, 0x0300);
-        WriteDWord(os, 9 + 4 + 5 + 5 + (13 + sizeBmpWords) + 3); // total metafile size
-        WriteWord(os, 1);
-        WriteDWord(os, 14 + sizeBmpWords); // max record size
-        WriteWord(os, 0);
-        // write records
-        WriteDWord(os, 4);
-        WriteWord(os, META_SETMAPMODE);
-        WriteWord(os, 8);
+        using (MemoryStream os = new MemoryStream())
+        {
+                // write metafile header
+                WriteWord(os, 1);
+                WriteWord(os, 9);
+                WriteWord(os, 0x0300);
+                WriteDWord(os, 9 + 4 + 5 + 5 + (13 + sizeBmpWords) + 3); // total metafile size
+                WriteWord(os, 1);
+                WriteDWord(os, 14 + sizeBmpWords); // max record size
+                WriteWord(os, 0);
+                // write records
+                WriteDWord(os, 4);
+                WriteWord(os, META_SETMAPMODE);
+                WriteWord(os, 8);
 
-        WriteDWord(os, 5);
-        WriteWord(os, META_SETWINDOWORG);
-        WriteWord(os, 0);
-        WriteWord(os, 0);
+                WriteDWord(os, 5);
+                WriteWord(os, META_SETWINDOWORG);
+                WriteWord(os, 0);
+                WriteWord(os, 0);
 
-        WriteDWord(os, 5);
-        WriteWord(os, META_SETWINDOWEXT);
-        WriteWord(os, (int)image.Height);
-        WriteWord(os, (int)image.Width);
+                WriteDWord(os, 5);
+                WriteWord(os, META_SETWINDOWEXT);
+                WriteWord(os, (int)image.Height);
+                WriteWord(os, (int)image.Width);
 
-        WriteDWord(os, 13 + sizeBmpWords);
-        WriteWord(os, META_DIBSTRETCHBLT);
-        WriteDWord(os, 0x00cc0020);
-        WriteWord(os, (int)image.Height);
-        WriteWord(os, (int)image.Width);
-        WriteWord(os, 0);
-        WriteWord(os, 0);
-        WriteWord(os, (int)image.Height);
-        WriteWord(os, (int)image.Width);
-        WriteWord(os, 0);
-        WriteWord(os, 0);
-        os.Write(data, 14, data.Length - 14);
-        if ((data.Length & 1) == 1)
-            os.WriteByte(0);
-//        WriteDWord(os, 14 + sizeBmpWords);
-//        WriteWord(os, META_STRETCHDIB);
-//        WriteDWord(os, 0x00cc0020);
-//        WriteWord(os, 0);
-//        WriteWord(os, (int)image.Height);
-//        WriteWord(os, (int)image.Width);
-//        WriteWord(os, 0);
-//        WriteWord(os, 0);
-//        WriteWord(os, (int)image.Height);
-//        WriteWord(os, (int)image.Width);
-//        WriteWord(os, 0);
-//        WriteWord(os, 0);
-//        os.Write(data, 14, data.length - 14);
-//        if ((data.length & 1) == 1)
-//            os.Write(0);
+                WriteDWord(os, 13 + sizeBmpWords);
+                WriteWord(os, META_DIBSTRETCHBLT);
+                WriteDWord(os, 0x00cc0020);
+                WriteWord(os, (int)image.Height);
+                WriteWord(os, (int)image.Width);
+                WriteWord(os, 0);
+                WriteWord(os, 0);
+                WriteWord(os, (int)image.Height);
+                WriteWord(os, (int)image.Width);
+                WriteWord(os, 0);
+                WriteWord(os, 0);
+                os.Write(data, 14, data.Length - 14);
+                if ((data.Length & 1) == 1)
+                    os.WriteByte(0);
+                //        WriteDWord(os, 14 + sizeBmpWords);
+                //        WriteWord(os, META_STRETCHDIB);
+                //        WriteDWord(os, 0x00cc0020);
+                //        WriteWord(os, 0);
+                //        WriteWord(os, (int)image.Height);
+                //        WriteWord(os, (int)image.Width);
+                //        WriteWord(os, 0);
+                //        WriteWord(os, 0);
+                //        WriteWord(os, (int)image.Height);
+                //        WriteWord(os, (int)image.Width);
+                //        WriteWord(os, 0);
+                //        WriteWord(os, 0);
+                //        os.Write(data, 14, data.length - 14);
+                //        if ((data.length & 1) == 1)
+                //            os.Write(0);
 
-        WriteDWord(os, 3);
-        WriteWord(os, 0);
-        os.Dispose();
-        return os.ToArray();
+                WriteDWord(os, 3);
+                WriteWord(os, 0);
+                return os.ToArray();
+            }
+
     }
 
     public static void WriteWord(Stream os, int v) {

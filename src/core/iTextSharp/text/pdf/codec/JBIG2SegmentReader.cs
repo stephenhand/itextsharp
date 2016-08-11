@@ -148,38 +148,46 @@ namespace iTextSharp.text.pdf.codec {
             * @throws IOException
             */
             virtual public byte[] GetData(bool for_embedding) {
-                MemoryStream os = new MemoryStream();
-                foreach (int sn in segs.Keys) {
-                    JBIG2Segment s = segs[sn];
+                using (MemoryStream os = new MemoryStream())
+                {
+                    foreach (int sn in segs.Keys)
+                    {
+                        JBIG2Segment s = segs[sn];
 
-                    // pdf reference 1.4, section 3.3.6 JBIG2Decode Filter
-                    // D.3 Embedded organisation
-                    if (for_embedding &&
-                            (s.type == END_OF_FILE || s.type == END_OF_PAGE)) {
-                        continue;
-                    }
+                        // pdf reference 1.4, section 3.3.6 JBIG2Decode Filter
+                        // D.3 Embedded organisation
+                        if (for_embedding &&
+                                (s.type == END_OF_FILE || s.type == END_OF_PAGE))
+                        {
+                            continue;
+                        }
 
-                    if (for_embedding) {
-                        // change the page association to page 1
-                        byte[] headerData_emb = CopyByteArray(s.headerData);
-                        if (s.page_association_size) {
-                            headerData_emb[s.page_association_offset] = 0x0;
-                            headerData_emb[s.page_association_offset + 1] = 0x0;
-                            headerData_emb[s.page_association_offset + 2] = 0x0;
-                            headerData_emb[s.page_association_offset + 3] = 0x1;
+                        if (for_embedding)
+                        {
+                            // change the page association to page 1
+                            byte[] headerData_emb = CopyByteArray(s.headerData);
+                            if (s.page_association_size)
+                            {
+                                headerData_emb[s.page_association_offset] = 0x0;
+                                headerData_emb[s.page_association_offset + 1] = 0x0;
+                                headerData_emb[s.page_association_offset + 2] = 0x0;
+                                headerData_emb[s.page_association_offset + 3] = 0x1;
+                            }
+                            else
+                            {
+                                headerData_emb[s.page_association_offset] = 0x1;
+                            }
+                            os.Write(headerData_emb, 0, headerData_emb.Length);
                         }
-                        else {
-                            headerData_emb[s.page_association_offset] = 0x1;
+                        else
+                        {
+                            os.Write(s.headerData, 0, s.headerData.Length);
                         }
-                        os.Write(headerData_emb, 0, headerData_emb.Length);
+                        os.Write(s.data, 0, s.data.Length);
                     }
-                    else {
-                        os.Write(s.headerData, 0, s.headerData.Length);
-                    }
-                    os.Write(s.data, 0, s.data.Length);
+                    return os.ToArray();
+
                 }
-                os.Close();
-                return os.ToArray();
             }
             virtual public void AddSegment(JBIG2Segment s) {
                 segs[s.segmentNumber] = s;

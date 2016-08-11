@@ -76,17 +76,17 @@ namespace iTextSharp.xmp.impl {
             // forces the encoding to be UTF-16 to get the correct string length
             options = options ?? new SerializeOptions();
             options.EncodeUtf16Be = true;
-
-            MemoryStream @out = new MemoryStream(2048);
+            byte[] buf = new byte[2048];
+            MemoryStream @out = new MemoryStream(buf);
             Serialize(xmp, @out, options);
 
             try {
-                return new EncodingNoPreamble(IanaEncodings.GetEncodingEncoding(options.Encoding)).GetString(@out.GetBuffer());
+                return new EncodingNoPreamble(IanaEncodings.GetEncodingEncoding(options.Encoding)).GetString(buf);
             }
             catch (Exception) {
                 // cannot happen as UTF-8/16LE/BE is required to be implemented in
                 // Java
-                return GetString(@out.GetBuffer());
+                return GetString(@out.ToArray());
             }
         }
 
@@ -99,9 +99,10 @@ namespace iTextSharp.xmp.impl {
         /// <returns> Returns a byte buffer containing the serialized RDF. </returns>
         /// <exception cref="XmpException"> on serializsation errors. </exception>
         public static byte[] SerializeToBuffer(XmpMetaImpl xmp, SerializeOptions options) {
-            MemoryStream @out = new MemoryStream(2048);
+            byte[] buf = new byte[2048];
+            MemoryStream @out = new MemoryStream(buf);
             Serialize(xmp, @out, options);
-            return @out.GetBuffer();
+            return buf;
         }
 
         static string GetString(byte[] bytes)

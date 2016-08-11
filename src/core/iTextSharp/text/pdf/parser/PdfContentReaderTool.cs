@@ -239,7 +239,7 @@ namespace iTextSharp.text.pdf.parser {
                 writer.Flush();
 
                 if (args.Length >= 2){
-                    writer.Close();
+                    writer.Dispose();
                     Console.Out.WriteLine("Finished writing content to " + args[1]);
                 }
             } catch (Exception e){

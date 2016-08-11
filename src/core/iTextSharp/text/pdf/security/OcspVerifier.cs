@@ -55,6 +55,7 @@ using iTextSharp.text.log;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Org.BouncyCastle.Security.Certificates;
 using Org.BouncyCastle.Utilities.Date;
+using iTextSharp.core.System.shims;
 
 /**
  * Class that allows you to verify a certificate against
@@ -249,12 +250,11 @@ namespace iTextSharp.text.pdf.security {
             // Check if responders certificate has id-pkix-ocsp-nocheck extension,
             // in which case we do not validate (perform revocation check on) ocsp certs for lifetime of certificate
             if (responderCert.GetExtensionValue(OcspObjectIdentifiers.PkixOcspNocheck.Id) == null) {
-                X509Crl crl;
+                X509Crl crl= null;
                 try {
                     X509CrlParser crlParser = new X509CrlParser();
-			        // Creates the CRL
-		            Stream url = WebRequest.Create(CertificateUtil.GetCRLURL(responderCert)).GetResponse().GetResponseStream();
-			        crl = crlParser.ReadCrl(url);
+                    // Creates the CRL
+                    SynchronousWebRequest.GetResponse(WebRequest.Create(CertificateUtil.GetCRLURL(responderCert)), delegate (WebResponse resp) { crl = crlParser.ReadCrl(resp.GetResponseStream()); });
                 } catch (Exception ignored) {
                     crl = null;
                 }

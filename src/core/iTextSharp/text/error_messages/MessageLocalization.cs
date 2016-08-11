@@ -150,30 +150,26 @@ namespace iTextSharp.text.error_messages {
             if (language == null)
                 throw new ArgumentException("The language cannot be null.");
             Stream isp = null;
-            try {
-                String file;
-                if (country != null)
-                    file = language + "_" + country + ".lng";
-                else
-                    file = language + ".lng";
-                isp = StreamUtil.GetResourceStream(BASE_PATH + file);
-                if (isp != null)
-                    return ReadLanguageStream(isp);
-                if (country == null)
-                    return null;
+            String file;
+            if (country != null)
+                file = language + "_" + country + ".lng";
+            else
                 file = language + ".lng";
-                isp = StreamUtil.GetResourceStream(BASE_PATH + file);
+            using (isp = StreamUtil.GetResourceStream(BASE_PATH + file))
+            {
+                if (isp != null)
+                    return ReadLanguageStream(isp);
+
+            }
+            if (country == null)
+                return null;
+            file = language + ".lng";
+            using(isp = StreamUtil.GetResourceStream(BASE_PATH + file))
+            {
                 if (isp != null)
                     return ReadLanguageStream(isp);
                 else
                     return null;
-            }
-            finally {
-                try {
-                    isp.Close();
-                } catch {
-                }
-                // do nothing
             }
         }
 

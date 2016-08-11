@@ -184,11 +184,14 @@ namespace iTextSharp.text.pdf.security {
             con.ContentType = "application/ocsp-request";
             con.Accept = "application/ocsp-response";
             con.Method = "POST";
-            Stream outp = con.GetRequestStream();
-            outp.Write(array, 0, array.Length);
-            outp.Close();
+            SynchronousWebRequest.WriteRequest(con, delegate (Stream outp) {
+                using (outp) {
+                    outp.Write(array, 0, array.Length);
+                }
+            });
             OcspResp ocspResponse = null;
-            SynchronousWebRequest.GetResponse(con, delegate (WebResponse response) {
+            SynchronousWebRequest.GetResponse(con, delegate (WebResponse wr) {
+                HttpWebResponse response = (HttpWebResponse)wr;
             if (response.StatusCode != HttpStatusCode.OK)
                 throw new IOException(MessageLocalization.GetComposedMessage("invalid.http.response.1", (int)response.StatusCode));
                 using (Stream inp = response.GetResponseStream())

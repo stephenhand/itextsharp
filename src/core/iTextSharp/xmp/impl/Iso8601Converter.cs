@@ -1,3 +1,4 @@
+using iTextSharp.xmp.timezone;
 using System;
 
 //Copyright (c) 2006, Adobe Systems Incorporated
@@ -217,7 +218,8 @@ namespace iTextSharp.xmp.impl {
             }
 
             // create a corresponding TZ and set it time zone
-            binValue.TimeZone = TimeZone.CurrentTimeZone;
+
+            binValue.TimeZone = CompatibleTimeZone.CurrentLocal;
 
             if (input.HasNext()) {
                 throw new XmpException("Invalid date string, extra chars at end", XmpError.BADVALUE);

@@ -5,6 +5,7 @@ using iTextSharp.text.error_messages;
 
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.codec.wmf;
+using iTextSharp.core.System.shims;
 
 /*
  * $Id$
@@ -105,43 +106,50 @@ namespace iTextSharp.text {
         private void ProcessParameters() {
             type = Element.IMGTEMPLATE;
             originalType = ORIGINAL_WMF;
-            Stream istr = null;
-            try {
-                string errorID;
-                if (rawData == null){
-                    WebRequest w = WebRequest.Create(url);
-                    w.Credentials = CredentialCache.DefaultCredentials;
-                    istr = w.GetResponse().GetResponseStream();
-                    errorID = url.ToString();
-                }
-                else{
-                    istr = new MemoryStream(rawData);
-                    errorID = "Byte array";
-                }
-                InputMeta im = new InputMeta(istr);
-                if (im.ReadInt() != unchecked((int)0x9AC6CDD7))    {
-                    throw new BadElementException(MessageLocalization.GetComposedMessage("1.is.not.a.valid.placeable.windows.metafile", errorID));
-                }
-                im.ReadWord();
-                int left = im.ReadShort();
-                int top = im.ReadShort();
-                int right = im.ReadShort();
-                int bottom = im.ReadShort();
-                int inch = im.ReadWord();
-                dpiX = 72;
-                dpiY = 72;
-                scaledHeight = (float)(bottom - top) / inch * 72f;
-                this.Top =scaledHeight;
-                scaledWidth = (float)(right - left) / inch * 72f;
-                this.Right = scaledWidth;
+            if (rawData == null){
+                WebRequest w = WebRequest.Create(url);
+                w.Credentials = CredentialCache.DefaultCredentials;
+                SynchronousWebRequest.GetResponse(w, delegate (WebResponse resp) {
+                        ProcessWMFStream(resp.GetResponseStream(), url.ToString());
+                });
             }
-            finally {
-                if (istr != null) {
-                    istr.Close();
-                }
-                plainWidth = this.Width;
-                plainHeight = this.Height;
+            else{
+                ProcessWMFStream(new MemoryStream(rawData), "Byte array");
             }
+        }
+
+        private void ProcessWMFStream(Stream istr, string errorID) {
+            using (istr)
+            {
+                try
+                {
+                    InputMeta im = new InputMeta(istr);
+                    if (im.ReadInt() != unchecked((int)0x9AC6CDD7))
+                    {
+                        throw new BadElementException(MessageLocalization.GetComposedMessage("1.is.not.a.valid.placeable.windows.metafile", errorID));
+                    }
+                    im.ReadWord();
+                    int left = im.ReadShort();
+                    int top = im.ReadShort();
+                    int right = im.ReadShort();
+                    int bottom = im.ReadShort();
+                    int inch = im.ReadWord();
+                    dpiX = 72;
+                    dpiY = 72;
+                    scaledHeight = (float)(bottom - top) / inch * 72f;
+                    this.Top = scaledHeight;
+                    scaledWidth = (float)(right - left) / inch * 72f;
+                    this.Right = scaledWidth;
+
+                }
+                finally
+                {
+                    plainWidth = this.Width;
+                    plainHeight = this.Height;
+                }
+
+            }
+            
         }
     
         /// <summary>
@@ -152,22 +160,21 @@ namespace iTextSharp.text {
             TemplateData = template;
             template.Width = this.Width;
             template.Height = this.Height;
-            Stream istr = null;
-            try {
-                if (rawData == null){
-                    WebRequest w = WebRequest.Create(url);
-                    w.Credentials = CredentialCache.DefaultCredentials;
-                    istr = w.GetResponse().GetResponseStream();
-                }
-                else{
-                    istr = new MemoryStream(rawData);
-                }
-                MetaDo meta = new MetaDo(istr, template);
-                meta.ReadAll();
+            if (rawData == null){
+                WebRequest w = WebRequest.Create(url);
+                w.Credentials = CredentialCache.DefaultCredentials;
+                SynchronousWebRequest.GetResponse(w, delegate (WebResponse resp)
+                {
+                    using (Stream istr=resp.GetResponseStream())
+                    {
+                        new MetaDo(istr, template).ReadAll();
+                    }
+                });
             }
-            finally {
-                if (istr != null) {
-                    istr.Close();
+            else{
+                using (Stream istr = new MemoryStream(rawData))
+                {
+                    new MetaDo(istr, template).ReadAll();
                 }
             }
         }

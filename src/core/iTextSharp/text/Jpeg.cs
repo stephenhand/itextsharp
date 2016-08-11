@@ -4,6 +4,7 @@ using System.Net;
 using System.util;
 using iTextSharp.text.pdf;
 using iTextSharp.text.error_messages;
+using iTextSharp.core.System.shims;
 
 /*
  * $Id$
@@ -190,207 +191,13 @@ namespace iTextSharp.text {
             type = Element.JPEG;
             originalType = ORIGINAL_JPEG;
             Stream istr = null;
-            try {
-                string errorID;
-                if (rawData == null){
-                    WebRequest w = WebRequest.Create(url);
-                    w.Credentials = CredentialCache.DefaultCredentials;
-                    istr = w.GetResponse().GetResponseStream();
-                    errorID = url.ToString();
-                }
-                else{
-                    istr = new MemoryStream(rawData);
-                    errorID = "Byte array";
-                }
-                if (istr.ReadByte() != 0xFF || istr.ReadByte() != 0xD8)    {
-                    throw new BadElementException(MessageLocalization.GetComposedMessage("1.is.not.a.valid.jpeg.file", errorID));
-                }
-                bool firstPass = true;
-                int len;
-                while (true) {
-                    int v = istr.ReadByte();
-                    if (v < 0)
-                        throw new IOException(MessageLocalization.GetComposedMessage("premature.eof.while.reading.jpg"));
-                    if (v == 0xFF) {
-                        int marker = istr.ReadByte();
-                        if (firstPass && marker == M_APP0) {
-                            firstPass = false;
-                            len = GetShort(istr);
-                            if (len < 16) {
-                                Utilities.Skip(istr, len - 2);
-                                continue;
-                            }
-                            byte[] bcomp = new byte[JFIF_ID.Length];
-                            int r = istr.Read(bcomp, 0, bcomp.Length);
-                            if (r != bcomp.Length)
-                                throw new BadElementException(MessageLocalization.GetComposedMessage("1.corrupted.jfif.marker", errorID));
-                            bool found = true;
-                            for (int k = 0; k < bcomp.Length; ++k) {
-                                if (bcomp[k] != JFIF_ID[k]) {
-                                    found = false;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                Utilities.Skip(istr, len - 2 - bcomp.Length);
-                                continue;
-                            }
-                            Utilities.Skip(istr, 2);
-                            int units = istr.ReadByte();
-                            int dx = GetShort(istr);
-                            int dy = GetShort(istr);
-                            if (units == 1) {
-                                dpiX = dx;
-                                dpiY = dy;
-                            }
-                            else if (units == 2) {
-                                dpiX = (int)((float)dx * 2.54f + 0.5f);
-                                dpiY = (int)((float)dy * 2.54f + 0.5f);
-                            }
-                            Utilities.Skip(istr, len - 2 - bcomp.Length - 7);
-                            continue;
-                        }
-                        if (marker == M_APPE) {
-                            len = GetShort(istr) - 2;
-                            byte[] byteappe = new byte[len];
-                            for (int k = 0; k < len; ++k) {
-                                byteappe[k] = (byte)istr.ReadByte();
-                            }
-                            if (byteappe.Length >= 12) {
-                                string appe = System.Text.ASCIIEncoding.ASCII.GetString(byteappe,0,5);
-                                if (Util.EqualsIgnoreCase(appe, "adobe")) {
-                                    invert = true;
-                                }
-                            }
-                            continue;
-                        }
-                        if (marker == M_APP2) {
-                            len = GetShort(istr) - 2;
-                            byte[] byteapp2 = new byte[len];
-                            for (int k = 0; k < len; ++k) {
-                                byteapp2[k] = (byte)istr.ReadByte();
-                            }
-                            if (byteapp2.Length >= 14) {
-                                String app2 = System.Text.ASCIIEncoding.ASCII.GetString(byteapp2, 0, 11);
-                                if (app2.Equals("ICC_PROFILE")) {
-                                    int order = byteapp2[12] & 0xff;
-                                    int count = byteapp2[13] & 0xff;
-                                    // some jpeg producers don't know how to count to 1
-                                    if (order < 1)
-                                        order = 1;
-                                    if (count < 1)
-                                        count = 1;
-                                    if (icc == null)
-                                        icc = new byte[count][];
-                                    icc[order - 1] = byteapp2;
-                                }
-                            }
-                            continue;
-                        }
-                        if (marker == M_APPD) {
-                            len = GetShort(istr) - 2;
-                            byte[] byteappd = new byte[len];
-                            for (int k = 0; k < len; k++) {
-                                byteappd[k] = (byte)istr.ReadByte();
-                            }
-                            // search for '8BIM Resolution' marker
-                            int j = 0;
-                            for (j = 0; j < len-PS_8BIM_RESO.Length; j++) {
-                                bool found = true;
-                                for (int i = 0; i < PS_8BIM_RESO.Length; i++) {
-                                    if (byteappd[j+i] != PS_8BIM_RESO[i]) {
-                                        found = false;
-                                        break;
-                                    }
-                                }
-                                if (found)
-                                    break;
-                            }
-
-                            j+=PS_8BIM_RESO.Length;
-                            if (j < len-PS_8BIM_RESO.Length) {
-                                // "PASCAL String" for name, i.e. string prefix with length byte
-                                // padded to be even length; 2 null bytes if empty
-                                byte namelength = byteappd[j];
-                                // add length byte
-                                namelength++;
-                                // add padding
-                                if (namelength % 2 == 1)
-                                    namelength++;
-                                // just skip name
-                                j += namelength;
-                                // size of the resolution data
-                                int resosize = (byteappd[j] << 24) + (byteappd[j+1] << 16) + (byteappd[j+2] << 8) + byteappd[j+3];
-                                // should be 16
-                                if (resosize != 16) {
-                                    // fail silently, for now
-                                    //System.err.println("DEBUG: unsupported resolution IRB size");
-                                    continue;
-                                }
-                                j+=4;
-                                int dx = (byteappd[j] << 8) + (byteappd[j+1] & 0xff);
-                                j+=2;
-                                // skip 2 unknown bytes
-                                j+=2;
-                                int unitsx = (byteappd[j] << 8) + (byteappd[j + 1] & 0xff);
-                                j+=2;
-                                // skip 2 unknown bytes
-                                j+=2;
-                                int dy = (byteappd[j] << 8) + (byteappd[j + 1] & 0xff);
-                                j+=2;
-                                // skip 2 unknown bytes
-                                j+=2;
-                                int unitsy = (byteappd[j] << 8) + (byteappd[j + 1] & 0xff);
-                                
-                                if (unitsx == 1 || unitsx == 2) {
-                                    dx = (unitsx == 2 ? (int)(dx * 2.54f + 0.5f) : dx);
-                                    // make sure this is consistent with JFIF data
-                                    if (dpiX != 0 && dpiX != dx) {
-                                        //System.err.println("DEBUG: inconsistent metadata (dpiX: " + dpiX + " vs " + dx + ")");
-                                    }
-                                    else
-                                        dpiX = dx;
-                                }
-                                if (unitsy == 1 || unitsy == 2) {
-                                    dy = (unitsy == 2 ? (int)(dy * 2.54f + 0.5f) : dy);
-                                    // make sure this is consistent with JFIF data
-                                    if (dpiY != 0 && dpiY != dy) {
-                                        //System.err.println("DEBUG: inconsistent metadata (dpiY: " + dpiY + " vs " + dy + ")");
-                                    }
-                                    else
-                                        dpiY = dy;
-                                }
-                            }
-                            continue;
-                        }
-                        firstPass = false;
-                        int markertype = MarkerType(marker);
-                        if (markertype == VALID_MARKER) {
-                            Utilities.Skip(istr, 2);
-                            if (istr.ReadByte() != 0x08) {
-                                throw new BadElementException(MessageLocalization.GetComposedMessage("1.must.have.8.bits.per.component", errorID));
-                            }
-                            scaledHeight = GetShort(istr);
-                            Top = scaledHeight;
-                            scaledWidth = GetShort(istr);
-                            Right = scaledWidth;
-                             colorspace = istr.ReadByte();
-                            bpc = 8;
-                            break;
-                        }
-                        else if (markertype == UNSUPPORTED_MARKER) {
-                            throw new BadElementException(MessageLocalization.GetComposedMessage("1.unsupported.jpeg.marker.2", errorID, marker));
-                        }
-                        else if (markertype != NOPARAM_MARKER) {
-                            Utilities.Skip(istr, GetShort(istr) - 2);
-                        }
-                    }
-                }
+            if (rawData == null) {
+                WebRequest w = WebRequest.Create(url);
+                w.Credentials = CredentialCache.DefaultCredentials;
+                SynchronousWebRequest.GetResponse(w, delegate (WebResponse r) { ProcessJPEGStream(r.GetResponseStream(), url.ToString()); });
             }
-            finally {
-                if (istr != null) {
-                    istr.Close();
-                }
+            else{
+                ProcessJPEGStream(new MemoryStream(rawData), "Byte array");
             }
             plainWidth = this.Width;
             plainHeight = this.Height;
@@ -415,6 +222,228 @@ namespace iTextSharp.text {
                 }
                 catch {}
                 icc = null;
+            }
+        }
+
+        private void ProcessJPEGStream(Stream istr, String errorID) {
+            using (istr) {
+                if (istr.ReadByte() != 0xFF || istr.ReadByte() != 0xD8)
+                {
+                    throw new BadElementException(MessageLocalization.GetComposedMessage("1.is.not.a.valid.jpeg.file", errorID));
+                }
+                bool firstPass = true;
+                int len;
+                while (true)
+                {
+                    int v = istr.ReadByte();
+                    if (v < 0)
+                        throw new IOException(MessageLocalization.GetComposedMessage("premature.eof.while.reading.jpg"));
+                    if (v == 0xFF)
+                    {
+                        int marker = istr.ReadByte();
+                        if (firstPass && marker == M_APP0)
+                        {
+                            firstPass = false;
+                            len = GetShort(istr);
+                            if (len < 16)
+                            {
+                                Utilities.Skip(istr, len - 2);
+                                continue;
+                            }
+                            byte[] bcomp = new byte[JFIF_ID.Length];
+                            int r = istr.Read(bcomp, 0, bcomp.Length);
+                            if (r != bcomp.Length)
+                                throw new BadElementException(MessageLocalization.GetComposedMessage("1.corrupted.jfif.marker", errorID));
+                            bool found = true;
+                            for (int k = 0; k < bcomp.Length; ++k)
+                            {
+                                if (bcomp[k] != JFIF_ID[k])
+                                {
+                                    found = false;
+                                    break;
+                                }
+                            }
+                            if (!found)
+                            {
+                                Utilities.Skip(istr, len - 2 - bcomp.Length);
+                                continue;
+                            }
+                            Utilities.Skip(istr, 2);
+                            int units = istr.ReadByte();
+                            int dx = GetShort(istr);
+                            int dy = GetShort(istr);
+                            if (units == 1)
+                            {
+                                dpiX = dx;
+                                dpiY = dy;
+                            }
+                            else if (units == 2)
+                            {
+                                dpiX = (int)((float)dx * 2.54f + 0.5f);
+                                dpiY = (int)((float)dy * 2.54f + 0.5f);
+                            }
+                            Utilities.Skip(istr, len - 2 - bcomp.Length - 7);
+                            continue;
+                        }
+                        if (marker == M_APPE)
+                        {
+                            len = GetShort(istr) - 2;
+                            byte[] byteappe = new byte[len];
+                            for (int k = 0; k < len; ++k)
+                            {
+                                byteappe[k] = (byte)istr.ReadByte();
+                            }
+                            if (byteappe.Length >= 12)
+                            {
+                                string appe = System.Text.ASCIIEncoding.ASCII.GetString(byteappe, 0, 5);
+                                if (Util.EqualsIgnoreCase(appe, "adobe"))
+                                {
+                                    invert = true;
+                                }
+                            }
+                            continue;
+                        }
+                        if (marker == M_APP2)
+                        {
+                            len = GetShort(istr) - 2;
+                            byte[] byteapp2 = new byte[len];
+                            for (int k = 0; k < len; ++k)
+                            {
+                                byteapp2[k] = (byte)istr.ReadByte();
+                            }
+                            if (byteapp2.Length >= 14)
+                            {
+                                String app2 = System.Text.ASCIIEncoding.ASCII.GetString(byteapp2, 0, 11);
+                                if (app2.Equals("ICC_PROFILE"))
+                                {
+                                    int order = byteapp2[12] & 0xff;
+                                    int count = byteapp2[13] & 0xff;
+                                    // some jpeg producers don't know how to count to 1
+                                    if (order < 1)
+                                        order = 1;
+                                    if (count < 1)
+                                        count = 1;
+                                    if (icc == null)
+                                        icc = new byte[count][];
+                                    icc[order - 1] = byteapp2;
+                                }
+                            }
+                            continue;
+                        }
+                        if (marker == M_APPD)
+                        {
+                            len = GetShort(istr) - 2;
+                            byte[] byteappd = new byte[len];
+                            for (int k = 0; k < len; k++)
+                            {
+                                byteappd[k] = (byte)istr.ReadByte();
+                            }
+                            // search for '8BIM Resolution' marker
+                            int j = 0;
+                            for (j = 0; j < len - PS_8BIM_RESO.Length; j++)
+                            {
+                                bool found = true;
+                                for (int i = 0; i < PS_8BIM_RESO.Length; i++)
+                                {
+                                    if (byteappd[j + i] != PS_8BIM_RESO[i])
+                                    {
+                                        found = false;
+                                        break;
+                                    }
+                                }
+                                if (found)
+                                    break;
+                            }
+
+                            j += PS_8BIM_RESO.Length;
+                            if (j < len - PS_8BIM_RESO.Length)
+                            {
+                                // "PASCAL String" for name, i.e. string prefix with length byte
+                                // padded to be even length; 2 null bytes if empty
+                                byte namelength = byteappd[j];
+                                // add length byte
+                                namelength++;
+                                // add padding
+                                if (namelength % 2 == 1)
+                                    namelength++;
+                                // just skip name
+                                j += namelength;
+                                // size of the resolution data
+                                int resosize = (byteappd[j] << 24) + (byteappd[j + 1] << 16) + (byteappd[j + 2] << 8) + byteappd[j + 3];
+                                // should be 16
+                                if (resosize != 16)
+                                {
+                                    // fail silently, for now
+                                    //System.err.println("DEBUG: unsupported resolution IRB size");
+                                    continue;
+                                }
+                                j += 4;
+                                int dx = (byteappd[j] << 8) + (byteappd[j + 1] & 0xff);
+                                j += 2;
+                                // skip 2 unknown bytes
+                                j += 2;
+                                int unitsx = (byteappd[j] << 8) + (byteappd[j + 1] & 0xff);
+                                j += 2;
+                                // skip 2 unknown bytes
+                                j += 2;
+                                int dy = (byteappd[j] << 8) + (byteappd[j + 1] & 0xff);
+                                j += 2;
+                                // skip 2 unknown bytes
+                                j += 2;
+                                int unitsy = (byteappd[j] << 8) + (byteappd[j + 1] & 0xff);
+
+                                if (unitsx == 1 || unitsx == 2)
+                                {
+                                    dx = (unitsx == 2 ? (int)(dx * 2.54f + 0.5f) : dx);
+                                    // make sure this is consistent with JFIF data
+                                    if (dpiX != 0 && dpiX != dx)
+                                    {
+                                        //System.err.println("DEBUG: inconsistent metadata (dpiX: " + dpiX + " vs " + dx + ")");
+                                    }
+                                    else
+                                        dpiX = dx;
+                                }
+                                if (unitsy == 1 || unitsy == 2)
+                                {
+                                    dy = (unitsy == 2 ? (int)(dy * 2.54f + 0.5f) : dy);
+                                    // make sure this is consistent with JFIF data
+                                    if (dpiY != 0 && dpiY != dy)
+                                    {
+                                        //System.err.println("DEBUG: inconsistent metadata (dpiY: " + dpiY + " vs " + dy + ")");
+                                    }
+                                    else
+                                        dpiY = dy;
+                                }
+                            }
+                            continue;
+                        }
+                        firstPass = false;
+                        int markertype = MarkerType(marker);
+                        if (markertype == VALID_MARKER)
+                        {
+                            Utilities.Skip(istr, 2);
+                            if (istr.ReadByte() != 0x08)
+                            {
+                                throw new BadElementException(MessageLocalization.GetComposedMessage("1.must.have.8.bits.per.component", errorID));
+                            }
+                            scaledHeight = GetShort(istr);
+                            Top = scaledHeight;
+                            scaledWidth = GetShort(istr);
+                            Right = scaledWidth;
+                            colorspace = istr.ReadByte();
+                            bpc = 8;
+                            break;
+                        }
+                        else if (markertype == UNSUPPORTED_MARKER)
+                        {
+                            throw new BadElementException(MessageLocalization.GetComposedMessage("1.unsupported.jpeg.marker.2", errorID, marker));
+                        }
+                        else if (markertype != NOPARAM_MARKER)
+                        {
+                            Utilities.Skip(istr, GetShort(istr) - 2);
+                        }
+                    }
+                }
             }
         }
     }

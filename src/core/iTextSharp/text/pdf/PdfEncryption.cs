@@ -528,20 +528,21 @@ public class PdfEncryption {
     }
 
     public static PdfObject CreateInfoId(byte[] id, bool modified) {
-        ByteBuffer buf = new ByteBuffer(90);
-        if(id.Length == 0)
-            id = CreateDocumentId();
-        buf.Append('[').Append('<');
-        for (int k = 0; k < id.Length; ++k)
-            buf.AppendHex(id[k]);
-        buf.Append('>').Append('<');
-        if (modified)
-            id = CreateDocumentId();
-        for (int k = 0; k < id.Length; ++k)
-            buf.AppendHex(id[k]);
-        buf.Append('>').Append(']');
-        buf.Close();
-        return new PdfLiteral(buf.ToByteArray());
+        using (ByteBuffer buf = new ByteBuffer(90))
+        {
+            if (id.Length == 0)
+                id = CreateDocumentId();
+            buf.Append('[').Append('<');
+            for (int k = 0; k < id.Length; ++k)
+                buf.AppendHex(id[k]);
+            buf.Append('>').Append('<');
+            if (modified)
+                id = CreateDocumentId();
+            for (int k = 0; k < id.Length; ++k)
+                buf.AppendHex(id[k]);
+            buf.Append('>').Append(']');
+            return new PdfLiteral(buf.ToByteArray());
+        }
     }
 
     virtual public PdfDictionary GetEncryptionDictionary() {
