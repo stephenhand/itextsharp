@@ -1,5 +1,6 @@
 using System;
 using iTextSharp.text.error_messages;
+using iTextSharp.core.System.shims;
 
 /*
  * $Id$
@@ -245,7 +246,7 @@ namespace iTextSharp.text {
             int pos = name.IndexOf(' ');
             if (pos == -1) {
                 try {            
-                    return (Rectangle)typeof(PageSize).GetField(name).GetValue(null);
+                    return (Rectangle)Reflection.GetReflectionType(typeof(PageSize)).GetField(name).GetValue(null);
                 } catch (Exception) {
                     throw new ArgumentException(MessageLocalization.GetComposedMessage("can.t.find.page.size.1", name));
                 }

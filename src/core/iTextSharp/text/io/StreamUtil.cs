@@ -1,3 +1,4 @@
+using iTextSharp.core.System.shims;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -119,7 +120,7 @@ namespace iTextSharp.text.io {
             // Try to use resource loader to load the properties file.
             try
             {
-                Assembly assm = Assembly.GetExecutingAssembly();
+                Assembly assm = Reflection.GetReflectionType(typeof(StreamUtil)).Assembly;
                 istr = assm.GetManifestResourceStream(key);
             }
             catch

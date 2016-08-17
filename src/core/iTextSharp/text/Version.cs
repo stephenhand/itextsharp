@@ -43,6 +43,7 @@
  * address: sales@itextpdf.com
  */
 
+using iTextSharp.core.System.shims;
 using System;
 using System.Reflection;
 
@@ -101,7 +102,7 @@ namespace iTextSharp.text {
                 lock (version) {
                     try {
                         Type type = Type.GetType("iTextSharp.license.LicenseKey, itextsharp.LicenseKey");
-                        MethodInfo m = ReflectionType.type.GetMethod("GetLicenseeInfo");
+                        MethodInfo m = Reflection.GetReflectionType(type).GetMethod("GetLicenseeInfo");
                         String[] info = (String[]) m.Invoke(Activator.CreateInstance(type), null);
                         if (info[3] != null && info[3].Trim().Length > 0) {
                             version.key = info[3];

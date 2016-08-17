@@ -180,7 +180,7 @@ namespace iTextSharp.text.pdf.security {
             byte[] array = request.GetEncoded();
             
             HttpWebRequest con = (HttpWebRequest)WebRequest.Create(url);
-            con.ContentLength = array.Length;
+            con.Headers["Content-Length"] = array.Length.ToString();
             con.ContentType = "application/ocsp-request";
             con.Accept = "application/ocsp-response";
             con.Method = "POST";

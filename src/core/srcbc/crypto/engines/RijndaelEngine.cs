@@ -1,6 +1,7 @@
 using System;
 
 using Org.BouncyCastle.Crypto.Parameters;
+using iTextSharp.core.System.shims;
 
 namespace Org.BouncyCastle.Crypto.Engines
 {
@@ -575,7 +576,7 @@ namespace Org.BouncyCastle.Crypto.Engines
 			bool           forEncryption,
 			ICipherParameters  parameters)
 		{
-			if (typeof(KeyParameter).IsInstanceOfType(parameters))
+			if (parameters is KeyParameter)
 			{
 				workingKey = GenerateWorkingKey(((KeyParameter)parameters).GetKey());
 				this.forEncryption = forEncryption;

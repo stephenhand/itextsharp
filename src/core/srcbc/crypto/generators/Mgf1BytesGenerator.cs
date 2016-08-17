@@ -28,7 +28,7 @@ namespace Org.BouncyCastle.Crypto.Generators
         public void Init(
             IDerivationParameters    parameters)
         {
-            if (!(typeof(MgfParameters).IsInstanceOfType(parameters)))
+            if (!(parameters is MgfParameters))
             {
                 throw new ArgumentException("MGF parameters required for MGF1Generator");
             }

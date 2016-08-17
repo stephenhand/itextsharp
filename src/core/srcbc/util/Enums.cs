@@ -18,8 +18,6 @@ namespace Org.BouncyCastle.Utilities
 
         internal static Enum GetEnumValue(System.Type enumType, string s)
         {
-            if (!enumType.IsEnum)
-                throw new ArgumentException("Not an enumeration type", "enumType");
 
             // We only want to parse single named constants
             if (s.Length > 0 && char.IsLetter(s[0]) && s.IndexOf(',') < 0)
@@ -28,6 +26,8 @@ namespace Org.BouncyCastle.Utilities
                 s = s.Replace('/', '_');
 
 #if NETCF_1_0
+                if (!enumType.IsEnum)
+                    throw new ArgumentException("Not an enumeration type", "enumType");
                 FieldInfo field = enumType.GetField(s, BindingFlags.Static | BindingFlags.Public);
                 if (field != null)
                 {
@@ -43,8 +43,6 @@ namespace Org.BouncyCastle.Utilities
 
         internal static Array GetEnumValues(System.Type enumType)
         {
-            if (!enumType.IsEnum)
-                throw new ArgumentException("Not an enumeration type", "enumType");
 
 #if NETCF_1_0 || NETCF_2_0 || SILVERLIGHT
             IList result = Platform.CreateArrayList();

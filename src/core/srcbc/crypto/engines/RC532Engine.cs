@@ -75,7 +75,7 @@ namespace Org.BouncyCastle.Crypto.Engines
             bool				forEncryption,
             ICipherParameters	parameters)
         {
-            if (typeof(RC5Parameters).IsInstanceOfType(parameters))
+            if (parameters is RC5Parameters)
             {
                 RC5Parameters p = (RC5Parameters)parameters;
 
@@ -83,7 +83,7 @@ namespace Org.BouncyCastle.Crypto.Engines
 
                 SetKey(p.GetKey());
             }
-            else if (typeof(KeyParameter).IsInstanceOfType(parameters))
+            else if (parameters is KeyParameter)
             {
                 KeyParameter p = (KeyParameter)parameters;
 

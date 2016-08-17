@@ -6,8 +6,6 @@ namespace iTextSharp.core.System.shims
 {
     public class Reflection
     {
-        public class CompatibleTimeZone
-        {
 #if NET_STANDARD
 
             public static TypeInfo GetReflectionType(Object o)
@@ -19,6 +17,7 @@ namespace iTextSharp.core.System.shims
             {
                 return t.GetTypeInfo();
             }
+        
 #else
 
 
@@ -31,6 +30,5 @@ namespace iTextSharp.core.System.shims
                 return t;
             }
 #endif
-        }
     }
 }

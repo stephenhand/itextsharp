@@ -78,7 +78,7 @@ namespace Org.BouncyCastle.Crypto.Engines
             bool             forEncryption,
             ICipherParameters    parameters)
         {
-            if (!(typeof(RC5Parameters).IsInstanceOfType(parameters)))
+            if (!(parameters is RC5Parameters))
             {
                 throw new ArgumentException("invalid parameter passed to RC564 init - " + parameters.GetType().ToString());
             }

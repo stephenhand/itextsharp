@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 
 using Org.BouncyCastle.Utilities;
+using iTextSharp.core.System.shims;
 
 namespace Org.BouncyCastle.X509.Store
 {
@@ -54,7 +55,7 @@ namespace Org.BouncyCastle.X509.Store
 		{
 			foreach (object o in coll)
 			{
-				if (!t.IsInstanceOfType(o))
+				if (!Reflection.GetReflectionType(t).IsInstanceOfType(o))
 					throw new InvalidCastException("Can't cast object to type: " + t.FullName);
 			}
 		}

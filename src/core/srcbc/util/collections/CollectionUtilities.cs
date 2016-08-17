@@ -1,3 +1,4 @@
+using iTextSharp.core.System.shims;
 using System;
 using System.Collections;
 using System.Text;
@@ -24,7 +25,7 @@ namespace Org.BouncyCastle.Utilities.Collections
 		{
 			foreach (object o in e)
 			{
-				if (!t.IsInstanceOfType(o))
+				if (!Reflection.GetReflectionType(t).IsInstanceOfType(o))
 					return false;
 			}
 			return true;

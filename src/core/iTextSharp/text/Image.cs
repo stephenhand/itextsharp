@@ -353,7 +353,7 @@ namespace iTextSharp.text {
         public static Image GetInstance(Image image) {
             if (image == null)
                 return null;
-            return (Image)image.GetType().GetConstructor(BindingFlags.Instance | BindingFlags.Public, null, new Type[] {typeof(Image)}, null).Invoke(new object[] {image});
+            return (Image)Reflection.GetReflectionType(image).GetConstructor(new Type[] {typeof(Image)}).Invoke(new object[] {image});
         }
 
         /// <summary>

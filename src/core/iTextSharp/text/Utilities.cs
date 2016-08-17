@@ -267,7 +267,7 @@ namespace iTextSharp.text {
         * @since	iText 5.0.0
         */
 	    public static String ReadFileToString(String path) {
-            using (StreamReader sr = new StreamReader(path, Encoding.Default)) {
+            using (StreamReader sr = new StreamReader(path, )) {
                 return sr.ReadToEnd();
             }
 	    }

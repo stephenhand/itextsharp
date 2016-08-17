@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Reflection;
 using iTextSharp.text.error_messages;
+using iTextSharp.core.System.shims;
 
 /*
  * $Id$
@@ -2357,7 +2358,7 @@ namespace iTextSharp.text.pdf {
          */
 
         static PdfName() {
-            FieldInfo[] fields = typeof(PdfName).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
+            FieldInfo[] fields = Reflection.GetReflectionType(typeof(PdfName)).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
             staticNames = new Dictionary<string,PdfName>(fields.Length);
             try {
                 for (int fldIdx = 0; fldIdx < fields.Length; ++fldIdx) {

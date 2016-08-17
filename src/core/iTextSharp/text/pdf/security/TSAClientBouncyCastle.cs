@@ -211,7 +211,7 @@ namespace iTextSharp.text.pdf.security {
         */
         protected internal virtual byte[] GetTSAResponse(byte[] requestBytes) {
             HttpWebRequest con = (HttpWebRequest)WebRequest.Create(tsaURL);
-            con.ContentLength = requestBytes.Length;
+            con.Headers["Content-Length"] = requestBytes.Length.ToString();
             con.ContentType = "application/timestamp-query";
             con.Method = "POST";
             if ((tsaUsername != null) && !tsaUsername.Equals("") ) {
@@ -238,7 +238,7 @@ namespace iTextSharp.text.pdf.security {
                         baos.Write(buffer, 0, bytesRead);
                         respBytes = baos.ToArray();
                     }
-                    String encoding = response.ContentEncoding;
+                    String encoding = response.Headers["Content-Encoding"];
                     if (encoding != null && Util.EqualsIgnoreCase(encoding, "base64")) {
                         respBytes = Convert.FromBase64String(Encoding.ASCII.GetString(respBytes));
                     }
