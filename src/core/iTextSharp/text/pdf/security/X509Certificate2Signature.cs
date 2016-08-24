@@ -48,7 +48,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
-
+#if !NET_STANDARD
 namespace iTextSharp.text.pdf.security {
     /// <summary>
     /// Creates a signature using a X509Certificate2. It supports smartcards without 
@@ -114,3 +114,4 @@ namespace iTextSharp.text.pdf.security {
         }
     }
 }
+#endif
