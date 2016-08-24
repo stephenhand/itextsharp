@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.shims;
 
 /*
  * $Id$
@@ -145,7 +146,7 @@ namespace iTextSharp.text.io {
                     } else if(obj is string) {
                         string dir = (string)obj;
                         try {
-                            istr = Assembly.LoadFrom(dir).GetManifestResourceStream(key);
+                            istr = Assemblies.LoadFrom(dir).GetManifestResourceStream(key);
                         }
                         catch { }
                         if(istr != null)

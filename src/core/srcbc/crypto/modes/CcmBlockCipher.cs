@@ -1,10 +1,11 @@
 using System;
 using System.IO;
-
+using System.shims;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Utilities;
+using Arrays =Org.BouncyCastle.Utilities.Arrays;
 
 namespace Org.BouncyCastle.Crypto.Modes
 {
