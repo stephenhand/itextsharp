@@ -131,7 +131,7 @@ namespace iTextSharp.text.pdf {
                 else {
                     for(int f = 0; f < fonts.Count; ++f) {
                         font = fonts[f];
-                        if(font.BaseFont.CharExists(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format) {
+                        if(font.BaseFont.CharExists(c) || CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.Format) {
                             if(currentFont != font) {
                                 if(sb.Length > 0 && currentFont != null) {
                                     newChunk = new Chunk(sb.ToString(), currentFont);

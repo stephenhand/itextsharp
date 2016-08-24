@@ -179,7 +179,11 @@ namespace iTextSharp.xmp.impl {
                     }
 
                     // interpret byte as Windows Cp1252 char
+#if NET_STANDARD
+                    string str = Encoding.GetEncoding(1252).GetString(new byte[] { ch });
+#else
                     string str = Encoding.Default.GetString(new byte[] {ch});
+#endif
                     return Encoding.UTF8.GetBytes(str);
                 }
             }

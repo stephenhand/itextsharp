@@ -267,10 +267,21 @@ namespace iTextSharp.text {
         * @since	iText 5.0.0
         */
 	    public static String ReadFileToString(String path) {
-            using (StreamReader sr = new StreamReader(path, )) {
+#if NET_STANDARD
+            using (var fs = File.OpenRead(path))
+            {
+                using (StreamReader sr = new StreamReader(fs))
+                {
+                    return sr.ReadToEnd();
+                }
+
+            }
+#else
+            using (StreamReader sr = new StreamReader(path, Encoding.Default)) {
                 return sr.ReadToEnd();
             }
-	    }
+#endif
+        }
 
         /**
          * Converts an array of bytes to a String of hexadecimal values

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.shims;
 using Org.BouncyCastle.X509;
 using iTextSharp.text.error_messages;
 using System.Text;
@@ -1289,7 +1290,7 @@ namespace iTextSharp.text.pdf {
                 for (int k = 0; k < range.Length; ++k)
                     bf.Append(range[k]).Append(' ');
                 bf.Append(']');
-                Array.Copy(bf.Buffer, 0, bout, byteRangePosition, bf.Size);
+                Arrays.Copy(bf.Buffer, 0, bout, byteRangePosition, bf.Size);
             }
             else {
                 try {
@@ -1396,7 +1397,7 @@ namespace iTextSharp.text.pdf {
                     if (bf.Size > lit.PosLength)
                         throw new ArgumentException(MessageLocalization.GetComposedMessage("the.key.1.is.too.big.is.2.reserved.3", key.ToString(), bf.Size, lit.PosLength));
                     if (tempFile == null)
-                        Array.Copy(bf.Buffer, 0, bout, lit.Position, bf.Size);
+                        Arrays.Copy(bf.Buffer, 0, bout, lit.Position, bf.Size);
                     else {
                         raf.Seek(lit.Position, SeekOrigin.Begin);
                         raf.Write(bf.Buffer, 0, bf.Size);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.shims;
 using iTextSharp.text.exceptions;
 using iTextSharp.text.log;
 using iTextSharp.text.pdf.intern;
@@ -1679,7 +1680,7 @@ namespace iTextSharp.text.pdf {
                     if (num >= xr.Length) {
 						long newLength = num * 2;
 						long[][] xr2 = new long[newLength][];
-                        Array.Copy(xr, 0, xr2, 0, top);
+                        Arrays.Copy(xr, 0, xr2, 0, top);
                         xr = xr2;
                     }
                     if (num >= top)
