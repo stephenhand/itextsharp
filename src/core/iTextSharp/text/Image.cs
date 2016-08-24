@@ -10,7 +10,7 @@ using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.codec;
 using iTextSharp.text.pdf.interfaces;
 using iTextSharp.text.io;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 /*
  * $Id$

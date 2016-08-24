@@ -6,7 +6,7 @@ using Org.BouncyCastle.Security.Certificates;
 using Org.BouncyCastle.X509;
 using iTextSharp.text.log;
 using iTextSharp.text.error_messages;
-using iTextSharp.core.System.shims;
+using System.shims;
 /*
 * $Id: CrlClientOnline.java 5302 2012-08-13 07:30:41Z blowagie $
 *

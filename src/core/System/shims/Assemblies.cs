@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
-using System.Threading.Tasks;
 
-namespace iTextSharp.core.System.shims
+#if NET_STANDARD
+using System.Runtime.Loader;
+#endif
+
+namespace System.shims
 {
     public static class Assemblies
     {

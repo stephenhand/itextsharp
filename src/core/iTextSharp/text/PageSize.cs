@@ -1,6 +1,6 @@
 using System;
 using iTextSharp.text.error_messages;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 /*
  * $Id$

@@ -42,8 +42,13 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="nunit.framework, Version=3.4.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.3.4.1\lib\net20\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NUnit.System.Linq, Version=0.2.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.3.4.1\lib\net20\NUnit.System.Linq.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
@@ -60,7 +65,9 @@
     <None Include="cmpfiles\images\cmp_chinese.pdf" />
     <None Include="cmpfiles\images\cmp_tiled_image.pdf" />
     <None Include="cmpfiles\tables\cmp_simple_rowspan_colspan.pdf" />
+    <None Include="itextsharp.sandbox%28VS2010%29.project.json" />
     <None Include="itextsharp.snk" />
+    <None Include="packages.config" />
     <None Include="resources\data\united_states.csv" />
     <None Include="resources\fonts\PT_Sans-Web-Regular.ttf" />
     <None Include="resources\pdfs\chinese.pdf" />

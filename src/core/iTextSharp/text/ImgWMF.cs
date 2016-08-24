@@ -5,7 +5,7 @@ using iTextSharp.text.error_messages;
 
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.codec.wmf;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 /*
  * $Id$

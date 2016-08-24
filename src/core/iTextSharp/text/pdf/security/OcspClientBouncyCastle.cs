@@ -10,7 +10,7 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.Ocsp;
 using iTextSharp.text.error_messages;
 using iTextSharp.text.log;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 /*
  * $Id: OcspClientBouncyCastle.cs 220 2010-12-22 13:38:35Z psoares33 $

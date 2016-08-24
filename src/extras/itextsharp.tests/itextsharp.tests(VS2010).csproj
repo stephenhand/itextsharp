@@ -62,14 +62,19 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="nunit.framework, Version=3.4.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.3.4.1\lib\net20\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NUnit.System.Linq, Version=0.2.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NUnit.3.4.1\lib\net20\NUnit.System.Linq.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
-    <Reference Include="XmlDiffPatch, Version=1.0.8.28, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" >
-        <HintPath>lib\XmlDiffPatch.dll</HintPath>
+    <Reference Include="XmlDiffPatch, Version=1.0.8.28, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>lib\XmlDiffPatch.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' Or '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -103,7 +108,7 @@
     <Compile Include="iTextSharp\text\pdf\fonts\FontEmbeddingTest.cs" />
     <Compile Include="iTextSharp\text\pdf\fonts\FontFamilyTest.cs" />
     <Compile Include="iTextSharp\text\pdf\fonts\SymbolTest.cs" />
-	<Compile Include="iTextSharp\text\pdf\fonts\EncodingTest.cs" />
+    <Compile Include="iTextSharp\text\pdf\fonts\EncodingTest.cs" />
     <Compile Include="iTextSharp\text\pdf\IndicLigatures.cs" />
     <Compile Include="iTextSharp\text\pdf\mc\AcroFieldsFlattenTest.cs" />
     <Compile Include="iTextSharp\text\pdf\MetaDataTest.cs" />
@@ -160,6 +165,7 @@
     <Compile Include="iTextSharp\text\signature\XmlDSigTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="itextsharp.tests%28VS2010%29.project.json" />
     <None Include="itextsharp.snk" />
     <None Include="lib\XmlDiffPatch.dll">
     </None>
@@ -212,6 +218,7 @@
     <Content Include="resources\text\pdf\TaggedPdfTest\xml\test7.xml" />
     <Content Include="resources\text\pdf\TaggedPdfTest\xml\test8.xml" />
     <Content Include="resources\text\pdf\TaggedPdfTest\xml\test9.xml" />
+    <None Include="packages.config" />
     <None Include="resources\testutils\CompareToolTest\cmp_simple_pdf.pdf" />
     <None Include="resources\testutils\CompareToolTest\cmp_tagged_pdf.pdf" />
     <None Include="resources\testutils\CompareToolTest\simple_pdf.pdf" />

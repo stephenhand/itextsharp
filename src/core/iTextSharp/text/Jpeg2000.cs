@@ -10,7 +10,7 @@ using System.util;
 using iTextSharp.text.pdf;
 using iTextSharp.text.error_messages;
 using System.Threading;
-using iTextSharp.core.System.shims;
+using System.shims;
 /*
 * $Id$
 * 

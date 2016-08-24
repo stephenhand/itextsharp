@@ -1503,6 +1503,8 @@
     <Compile Include="iTextSharp\xmp\properties\IXmpPropertyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="iTextSharp\xmp\timezone\CompatibleTimeZone.cs" />
+    <Compile Include="iTextSharp\xmp\timezone\ITimeZoneAdapter.cs" />
     <Compile Include="iTextSharp\xmp\XmpCalendar.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -4503,6 +4505,12 @@
     <Compile Include="srcbc\x509\X509V3CertificateGenerator.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="System\shims\Arrays.cs" />
+    <Compile Include="System\shims\Assemblies.cs" />
+    <Compile Include="System\shims\ICloneable.cs" />
+    <Compile Include="System\shims\Reflection.cs" />
+    <Compile Include="System\shims\Streams.cs" />
+    <Compile Include="System\shims\SynchronousWebRequest.cs" />
     <Compile Include="System\util\collections\HashSet2.cs">
       <SubType>Code</SubType>
     </Compile>

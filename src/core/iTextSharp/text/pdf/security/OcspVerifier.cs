@@ -55,7 +55,7 @@ using iTextSharp.text.log;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Org.BouncyCastle.Security.Certificates;
 using Org.BouncyCastle.Utilities.Date;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 /**
  * Class that allows you to verify a certificate against

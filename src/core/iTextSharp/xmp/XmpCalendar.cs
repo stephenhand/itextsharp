@@ -59,11 +59,11 @@ namespace iTextSharp.xmp {
 #else
     public class XmpCalendar : XmpCalendar<TimeZone> {
 
-        public XmpCalendar(DateTime dt, TimeZoneInfo tz) : base(dt, tz) {}
+        public XmpCalendar(DateTime dt, TimeZone tz) : base(dt, tz) {}
 
         public XmpCalendar(DateTime dt) : this(dt, TimeZone.CurrentTimeZone) {}
 
-        public XmpCalendar(TimeZoneInfo tz) : this(DateTime.Now, tz) {}
+        public XmpCalendar(TimeZone tz) : this(DateTime.Now, tz) {}
 
         public XmpCalendar() : this(DateTime.Now, TimeZone.CurrentTimeZone) {}
     }

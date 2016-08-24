@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Collections.Generic;
 using iTextSharp.text.error_messages;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 /*
  * $Id$

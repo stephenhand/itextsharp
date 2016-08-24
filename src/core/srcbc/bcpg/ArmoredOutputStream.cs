@@ -7,6 +7,7 @@ using System.Text;
 
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.IO;
+using System.shims;
 
 namespace Org.BouncyCastle.Bcpg
 {
@@ -98,7 +99,7 @@ namespace Org.BouncyCastle.Bcpg
         private static readonly string	footerTail = "-----";
 
         private static readonly string version = "BCPG C# v"
-			+ typeof(ArmoredOutputStream).GetTypeInfo().Assembly.GetName().Version;
+			+ Reflection.GetReflectionType(typeof(ArmoredOutputStream)).Assembly.GetName().Version;
 
 		private readonly IDictionary headers;
 

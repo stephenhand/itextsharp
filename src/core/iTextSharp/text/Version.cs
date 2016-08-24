@@ -43,7 +43,7 @@
  * address: sales@itextpdf.com
  */
 
-using iTextSharp.core.System.shims;
+using System.shims;
 using System;
 using System.Reflection;
 

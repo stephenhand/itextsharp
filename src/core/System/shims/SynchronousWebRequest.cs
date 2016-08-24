@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
+#if NET_STANDARD
 using System.Threading.Tasks;
+#endif
 
-namespace iTextSharp.core.System.shims
+namespace System.shims
 {
     public class SynchronousWebRequest
     {

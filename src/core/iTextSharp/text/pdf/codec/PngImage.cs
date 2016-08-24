@@ -7,7 +7,7 @@ using System.util;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.error_messages;
-using iTextSharp.core.System.shims;
+using System.shims;
 /*
 * This file is part of the iText project.
 * Copyright (c) 1998-2014 iText Group NV

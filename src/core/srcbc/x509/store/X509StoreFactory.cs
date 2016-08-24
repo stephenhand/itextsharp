@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 
 using Org.BouncyCastle.Utilities;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 namespace Org.BouncyCastle.X509.Store
 {

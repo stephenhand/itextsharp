@@ -4,7 +4,7 @@ using System.Net;
 using System.Text;
 using iTextSharp.text;
 using iTextSharp.text.error_messages;
-using iTextSharp.core.System.shims;
+using System.shims;
 /*
 * $Id$
 * 

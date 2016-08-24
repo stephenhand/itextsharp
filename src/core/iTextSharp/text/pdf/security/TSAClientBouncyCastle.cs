@@ -14,7 +14,7 @@ using Org.BouncyCastle.Asn1.Tsp;
 using Org.BouncyCastle.Crypto;
 using iTextSharp.text.log;
 using iTextSharp.text.error_messages;
-using iTextSharp.core.System.shims;
+using System.shims;
 /*
 * $Id: TSAClientBouncyCastle.cs 106 2009-12-07 12:23:50Z psoares33 $
 *

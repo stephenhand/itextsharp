@@ -5,7 +5,7 @@ using iTextSharp.text.io;
 using iTextSharp.text.pdf.collection;
 using iTextSharp.text.error_messages;
 using iTextSharp.text.pdf.intern;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 /*
  * This file is part of the iText project.

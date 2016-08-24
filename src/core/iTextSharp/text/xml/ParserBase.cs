@@ -64,46 +64,54 @@ namespace iTextSharp.text.xml
             this.Parse(reader);
         }
 
-        virtual public void Parse(XmlReader reader) {
-            try {
-                while (reader.Read()) {
-                    switch (reader.NodeType) {
-                        case XmlNodeType.Element:
-                            string namespaceURI = reader.NamespaceURI;
-                            string name = reader.Name;
-                            bool isEmpty = reader.IsEmptyElement;
-                            Dictionary<string, string> attributes = new Dictionary<string, string>();
-                            if (reader.HasAttributes) {
-                                for (int i = 0; i < reader.AttributeCount; i++) {
-                                    reader.MoveToAttribute(i);
-                                    attributes.Add(reader.Name,reader.Value);
+        virtual public void Parse(XmlReader reader)
+        {
+            using (reader)
+            {
+                try
+                {
+                    while (reader.Read())
+                    {
+                        switch (reader.NodeType)
+                        {
+                            case XmlNodeType.Element:
+                                string namespaceURI = reader.NamespaceURI;
+                                string name = reader.Name;
+                                bool isEmpty = reader.IsEmptyElement;
+                                Dictionary<string, string> attributes = new Dictionary<string, string>();
+                                if (reader.HasAttributes)
+                                {
+                                    for (int i = 0; i < reader.AttributeCount; i++)
+                                    {
+                                        reader.MoveToAttribute(i);
+                                        attributes.Add(reader.Name, reader.Value);
+                                    }
                                 }
-                            }
-                            this.StartElement(namespaceURI, name, name, attributes);
-                            if (isEmpty) {
-                                EndElement(namespaceURI,
-                                    name, name);
-                            }
-                            break;
-                        case XmlNodeType.EndElement:
-                            EndElement(reader.NamespaceURI,
-                                reader.Name, reader.Name);
-                            break;
-                        case XmlNodeType.Text:
-                            Characters(reader.Value, 0, reader.Value.Length);
-                            break;
+                                this.StartElement(namespaceURI, name, name, attributes);
+                                if (isEmpty)
+                                {
+                                    EndElement(namespaceURI,
+                                        name, name);
+                                }
+                                break;
+                            case XmlNodeType.EndElement:
+                                EndElement(reader.NamespaceURI,
+                                    reader.Name, reader.Name);
+                                break;
+                            case XmlNodeType.Text:
+                                Characters(reader.Value, 0, reader.Value.Length);
+                                break;
                             // There are many other types of nodes, but
                             // we are not interested in them
-                        case XmlNodeType.Whitespace:
-                            Characters(reader.Value, 0, reader.Value.Length);
-                            break;
+                            case XmlNodeType.Whitespace:
+                                Characters(reader.Value, 0, reader.Value.Length);
+                                break;
+                        }
                     }
                 }
-            } catch (XmlException e) {
-                Console.Out.WriteLine(e.Message);
-            } finally {
-                if (reader != null) {
-                    reader.Dispose();
+                catch (XmlException e)
+                {
+                    Console.Out.WriteLine(e.Message);
                 }
             }
         }

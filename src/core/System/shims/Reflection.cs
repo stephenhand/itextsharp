@@ -2,7 +2,7 @@
 
 using System.Reflection;
 
-namespace iTextSharp.core.System.shims
+namespace System.shims
 {
     public class Reflection
     {

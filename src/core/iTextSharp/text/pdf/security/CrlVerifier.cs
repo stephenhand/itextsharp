@@ -50,7 +50,7 @@ using System.Net;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
 using iTextSharp.text.log;
-using iTextSharp.core.System.shims;
+using System.shims;
 
 /**
  * Class that allows you to verify a certificate against
