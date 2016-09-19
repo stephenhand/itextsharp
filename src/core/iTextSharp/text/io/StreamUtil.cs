@@ -54,7 +54,11 @@ namespace iTextSharp.text.io {
      *
      */
     public static class StreamUtil {
-
+#if NET_STANDARD
+        private const string RESOURCE_PATH_ROOT = "core.";
+#else
+        private const string RESOURCE_PATH_ROOT = String.Empty;
+#endif
         /**
          * Reads the full content of a stream and returns them in a byte array
          * @param is the stream to read
@@ -115,8 +119,9 @@ namespace iTextSharp.text.io {
          * @return the <CODE>Stream</CODE> to get the resource or
          * <CODE>null</CODE> if not found
          */
-        public static Stream GetResourceStream(string key)
+        public static Stream GetResourceStream(string keyPath)
         {
+            string key = RESOURCE_PATH_ROOT + keyPath;
             Stream istr = null;
             // Try to use resource loader to load the properties file.
             try
