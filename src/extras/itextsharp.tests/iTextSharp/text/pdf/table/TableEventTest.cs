@@ -1,13 +1,10 @@
-using System;
-using System.Text;
-using iTextSharp.text.xml.simpleparser;
-using iTextSharp.tool.xml.parser;
+﻿
 /*
- * $Id: SpecialCharState.java 118 2011-05-27 11:10:19Z redlab_b $
+ * $Id$
  *
  * This file is part of the iText (R) project.
  * Copyright (c) 1998-2016 iText Group NV
- * Authors: Balder Van Camp, Emiel Ackermann, et al.
+ * Authors: Bruno Lowagie, Paulo Soares, et al.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3
@@ -46,51 +43,65 @@ using iTextSharp.tool.xml.parser;
  * For more information, please contact iText Software Corp. at this
  * address: sales@itextpdf.com
  */
-namespace iTextSharp.tool.xml.parser.state {
+using System;
+using System.IO;
+using NUnit.Framework;
+using iTextSharp.testutils;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
 
-    /**
-     * @author redlab_b
-     *
-     */
-    public class SpecialCharState : IState {
+namespace itextsharp.tests.iTextSharp.text.pdf.table
+{
+   [TestFixture]
+   public class TableEventTest
+    {
+        private static readonly String CMP_FOLDER = @"..\..\resources\text\pdf\table\TableEventTest\";
+        private static readonly String OUTPUT_FOLDER = @"table\TableEventTest\";
 
-        private XMLParser parser;
-
-        /**
-         * @param parser the XMLParser
-         */
-        public SpecialCharState(XMLParser parser) {
-            this.parser =parser;
+        [TestFixtureSetUp]
+        public static void Init()
+        {
+            Directory.CreateDirectory(OUTPUT_FOLDER);
         }
 
-        /* (non-Javadoc)
-         * @see com.itextpdf.tool.xml.parser.State#process(int)
-         */
-        virtual public void Process(char character) {
-            StringBuilder entity = this.parser.Memory().CurrentEntity();
-            if (character == ';') {
-    //          if ("nbsp".Equals(entity.ToString())) {
-    //              parser.Append(' '); // TODO check yes or no if it's good idea to transform &nbsp into a space ?
-    //          } else {
-                    char decoded = EntitiesToUnicode.DecodeEntity(entity.ToString());
-                    if (decoded == '\0') {
-                        parser.Append('&').Append(entity.ToString()).Append(';');
-                        parser.Memory().LastChar = ';';
-                    } else {
-                        parser.Append(decoded);
-                        parser.Memory().LastChar = decoded;
-                    }
-    //          }
-                parser.SelectState().PreviousState();
-                this.parser.Memory().CurrentEntity().Length = 0;
-             } else if (character != '#' && (character < '0' || character > '9') && (character < 'a' || character > 'z')
-                    && (character < 'A' || character > 'Z') || entity.Length >= 7) {
-                 parser.Append('&').Append(entity.ToString()).Append(character);
-                 parser.SelectState().PreviousState();
-                 this.parser.Memory().CurrentEntity().Length = 0;
-            } else {
-                entity.Append(character);
+        [Test]
+        public virtual void TestTableEvent()
+        {
+            String file = "tableEventTest.pdf";
+
+            FileInfo fileE = new FileInfo(CMP_FOLDER + file);
+          
+            Document document = new Document();
+            PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(OUTPUT_FOLDER + file,FileMode.Create));
+            document.Open();
+            PdfPTable table = new PdfPTable(1);
+
+            table.TableEvent = new DummyEvent();
+            table.TotalWidth=400f;
+            for (int i = 0; i < 10; i++)
+            {
+                table.AddCell("Cell " + i);
+            }
+            table.WriteSelectedRows(4, 8, 100, 800, writer.DirectContent);
+            document.Close();
+
+            // compare
+            CompareTool compareTool = new CompareTool();
+            String errorMessage = compareTool.CompareByContent(OUTPUT_FOLDER + file, CMP_FOLDER + file, OUTPUT_FOLDER, "diff");
+            if (errorMessage != null)
+            {
+                Assert.Fail(errorMessage);
+            }
+        }
+
+
+        private class DummyEvent : IPdfPTableEvent
+        {
+            public void TableLayout(PdfPTable table, float[][] widths, float[] heights, int headerRows, int rowStart, PdfContentByte[] canvases)
+            {
+                
             }
         }
     }
 }
+
