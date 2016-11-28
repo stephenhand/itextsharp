@@ -57,7 +57,7 @@ namespace iTextSharp.text.io {
 #if NET_STANDARD
         private const string RESOURCE_PATH_ROOT = "core.";
 #else
-        private const string RESOURCE_PATH_ROOT = String.Empty;
+        private const string RESOURCE_PATH_ROOT = "";
 #endif
         /**
          * Reads the full content of a stream and returns them in a byte array
